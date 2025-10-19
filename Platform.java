@@ -7,7 +7,7 @@ import javafx.event.EventHandler;
 public class Platform extends GameObject{
     private int xVelocity;
 
-    private final int PLATFORM_VEL = 50;
+    private final int PLATFORM_VEL = 5;
 
     public Platform (Rectangle shape) {
         super(shape);
@@ -18,13 +18,11 @@ public class Platform extends GameObject{
         this.setFill(color);*/
     }
 
-    /*public void handleEvent(KeyEvent event) {
-
-    }*/
 
 
 
-    public void moveLeft() {
+
+    /*public void moveLeft() {
         xVelocity-=PLATFORM_VEL;
         this.setX(this.getX() + xVelocity);
         xVelocity=0;
@@ -36,72 +34,110 @@ public class Platform extends GameObject{
         this.setX(this.getX() + xVelocity);
         xVelocity=0;
         System.out.println("RIGHT");
-    }
+    }*/
+
+
 
     public void handleEvent(KeyEvent e) {
         if (e.getEventType() == KeyEvent.KEY_PRESSED ) {
-            System.out.println("vhvhv");
+            //System.out.println("vhvhv");
             switch (e.getCode()) {
                 case A:
+                    xVelocity = 0;
+                    xVelocity -= PLATFORM_VEL;
+
+                    /*this.setX(this.getX() - PLATFORM_VEL);
+
+                    if (this.getX()  < 0) {
+                        this.setX(this.getX() + PLATFORM_VEL);
+                    }*/
+                    //xVelocity = 0;
                     //xVelocity -= PLATFORM_VEL;
-
-                    this.setX(this.getX() - PLATFORM_VEL);
-
-                    if (this.x  < 0 || this.x + this.w > 600) {
-                        this.setX(this.getX() + PLATFORM_VEL);
-                    }
                     break;
                 case D:
-                    //xVelocity += PLATFORM_VEL;
-                    this.setX(this.getX() + PLATFORM_VEL);
+                    xVelocity = 0;
+                    xVelocity += PLATFORM_VEL;
 
-                    if (this.x  < 0 || this.x + this.w > 600) {
+                    /*this.setX(this.getX() + PLATFORM_VEL);
+
+                    if (this.getX() + this.getW() > 600) {
                         this.setX(this.getX() - PLATFORM_VEL);
-                    }
+
+                    }*/
                     break;
                 case KeyCode.LEFT:
                     this.setX(this.getX() - PLATFORM_VEL);
 
-                    if (this.x  < 0 || this.x + this.w > 600) {
+                    if (this.x  < 0) {
                         this.setX(this.getX() + PLATFORM_VEL);
                     }
                     break;
                 case KeyCode.RIGHT:
                     this.setX(this.getX() + PLATFORM_VEL);
 
-                    if (this.x  < 0 || this.x + this.w > 600) {
+                    if (this.x + this.w > 600) {
                         this.setX(this.getX() - PLATFORM_VEL);
                     }
                     break;
                 default:
                     break;
             }
-        } /*else if (e.getEventType() == KeyEvent.KEY_RELEASED) {
+
+        } else if (e.getEventType() == KeyEvent.KEY_RELEASED) {
             switch (e.getCode()) {
                 case A:
-                    xVelocity += PLATFORM_VEL;
+                    /*this.setX(this.getX() - PLATFORM_VEL);
+
+                    if (this.getX() < 0) {
+                        this.setX(this.getX() + PLATFORM_VEL);
+                    }*/
+                    //xVelocity = 0;
+                    //xVelocity += PLATFORM_VEL;
+                    xVelocity = 0;
                     break;
                 case D:
-                    xVelocity -= PLATFORM_VEL;
+                    //xVelocity -= PLATFORM_VEL;
+                    xVelocity = 0;
+                    /*this.setX(this.getX() + PLATFORM_VEL);
+
+                    if (this.getW() + this.getW() > 600) {
+                        this.setX(this.getX() - PLATFORM_VEL);
+                    }*/
                     break;
                 case KeyCode.LEFT:
-                    xVelocity += PLATFORM_VEL;
+                    this.setX(this.getX() - PLATFORM_VEL);
+
+                    if (this.x  < 0) {
+                        this.setX(this.getX() + PLATFORM_VEL);
+                    }
                     break;
                 case KeyCode.RIGHT:
-                    xVelocity -= PLATFORM_VEL;
+                    this.setX(this.getX() + PLATFORM_VEL);
+
+                    if (this.x + this.w > 600) {
+                        this.setX(this.getX() - PLATFORM_VEL);
+                    }
                     break;
                 default:
                     break;
             }
-        }*/
+        }
     }
 
-    /*public void move() {
-        this.setX(this.getX() + PLATFORM_VEL);
+    public void move() {
 
-        if (this.x  < 0 || this.x + this.w > 640) {
-            this.setX(this.getX() - PLATFORM_VEL);
+        //System.out.println(xVelocity);
+
+        this.setX(this.getX() + xVelocity);
+
+        if (this.getX() + this.getW() > 600) {
+            this.setX(this.getX() - xVelocity);
         }
+
+        if(this.getX() < 0) {
+            this.setX(this.getX() - xVelocity);
+        }
+        //xVelocity = 0;
         //return;
-    }*/
+    }
 }
