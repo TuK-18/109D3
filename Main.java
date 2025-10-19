@@ -22,6 +22,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         example1(primaryStage);
     }
+
     private static void example1(Stage primaryStage) {
         //Data data = new Data(primaryStage,"Bouncing Balls");
         Controller vc = new Controller(primaryStage);

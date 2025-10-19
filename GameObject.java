@@ -9,21 +9,23 @@ public class GameObject {
     protected double y;
     protected double w;
     protected double h;
+    protected CollisionManager collisionManager;
 
     protected Rectangle hitBox1;
     protected Circle hitBox2;
     protected Color color;
 
-    public int fieldWidth = 640;
+    public int fieldWidth = 600;
     public int fieldHeight = 640;
     protected double radius ;
     protected double centreX;
     protected double centreY;
 
     public GameObject(){
-
+        collisionManager = new CollisionManager();
     }
     public GameObject(Rectangle rect) {
+        collisionManager = new CollisionManager();
         this.x = rect.getX();
         this.y = rect.getY();
         this.w = rect.getWidth();
@@ -90,8 +92,9 @@ public class GameObject {
     }
 
     public void setCentreX(double centreX) {
-        this.centreX = centreX;
         this.hitBox2.setCenterX(centreX);
+        this.centreX = centreX;
+
     }
 
     public double getCentreY() {
@@ -102,6 +105,10 @@ public class GameObject {
         this.hitBox2.setCenterY(centreY);
         this.centreY = centreY;
 
+    }
+
+    public double getRadius() {
+        return this.radius;
     }
 
     public double getInitialSpeed() {
@@ -116,10 +123,10 @@ public class GameObject {
 
     }
 
-    public void detectCollision(GameObject o) {
+    public boolean detectCollision(GameObject o) {
         if (o != this && o.getHitBox().intersects(this.getHitBox().getLayoutBounds())
                 && this instanceof Ball
-                && o instanceof Platform) {
+                && (o instanceof Platform || o instanceof Brick)) {
             /*PVector currSpeed = this.vSpeed.get();
             this.setSpeed(o.vSpeed);
             o.setSpeed(currSpeed);*/
@@ -128,15 +135,57 @@ public class GameObject {
             //this.vSpeed.multX(-1);
             //this.vSpeed.multX(-1);
 
-            if(this.getCentreY() + this.radius >= o.getY()
+            /*if(this.getCentreY() + this.radius >= o.getY()
                     && (this.getCentreX() + this.radius >= o.getX()
-                    || this.getCentreX() + this.radius <= o.getX()+o.getW()) ){
+                    || this.getCentreX() - this.radius <= o.getX()+o.getW()) ){
                 //System.out.println(o.getX());
                 this.vSpeed.multX(-1);
                 return;
+            }*/
+
+            /*if(collisionManager.hitBottoms(o, this)){
+                this.setCentreY(this.getCentreY() - this.getRadius());
+                this.vSpeed.multY(-1);
+                //return;
+            } if(collisionManager.hitSides(o,this)) {
+                this.setCentreX(this.getCentreX() - this.getRadius());
+                this.vSpeed.multY(-1);
+                this.vSpeed.multX(-1);
+                //return;dd
+            }*/
+
+            if (collisionManager.hitTop(o,this)) {
+                this.setCentreY(this.getCentreY() - this.getRadius());
+                //this.setCentreY(this.getCentreY());
+                this.vSpeed.multY(-1);
+                return true;
             }
-            this.vSpeed.multY(-1);
+
+            if(collisionManager.hitLeft(o,this)) {
+                this.setCentreX(this.getCentreX() - this.getRadius());
+                //this.vSpeed.multY(-1);
+                this.vSpeed.multX(-1);
+                return true;
+            }
+
+            if(collisionManager.hitRight(o,this)) {
+                this.setCentreX(this.getCentreX() + this.getRadius());
+                //this.vSpeed.multY(-1);
+                this.vSpeed.multX(-1);
+                return true;
+            }
+
+            if (collisionManager.hitBottom(o,this)) {
+                this.setCentreY(this.getCentreY() + this.getRadius());
+                this.vSpeed.multY(-1);
+                return true;
+            }
+
+
+            //this.vSpeed.multY(-1);
+
 
         }
+        return false;
     }
 }

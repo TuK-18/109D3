@@ -14,17 +14,19 @@ public class Ball extends GameObject {
     public Ball(Circle shape) {
         this.hitBox2 = shape;
 
-        //this.color = color;
         this.radius = shape.getRadius();
         this.centreX = shape.getCenterX();
         this.centreY = shape.getCenterY();
-        double aa = 2.055052212747844;
-        double aaa = 2.6132047217868;
+        double aa = -2.055052212747844;
+        double aaa = -2.6132047217868;
         this.vSpeed = new PVector(aa, aaa);
+        //this.vSpeed = new PVector(0,0);
 
     }
 
-
+    public double getRadius() {
+        return this.radius;
+    }
 
 
     @Override
