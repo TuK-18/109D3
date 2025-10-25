@@ -1,5 +1,6 @@
 
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import java.util.ArrayList;
@@ -8,14 +9,20 @@ import java.util.Objects;
 
 import javafx.scene.Scene;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 import javafx.scene.Group;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.*;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import org.w3c.dom.css.Rect;
 
 import static java.awt.event.KeyEvent.KEY_PRESSED;
@@ -27,15 +34,15 @@ public class View {
     //private Data data;
     private Scene scene;
     private Group root;
-    private Ball b1;
-    private Ball b2;
-    private Ball b3;
-    private Ball b4;
-    private Ball b5;
-    private Ball b6;
+
+
     private Platform platform;
-    private Brick br1;
-    private Brick br2;
+
+    private Button pauseButton;
+
+    private Button loseButton;
+
+    private Button addBall;
 
     private final int WIDTH = 600;
     private final int HEIGHT = 640;
@@ -43,27 +50,49 @@ public class View {
     private ArrayList<GameObject>objects;
 
     private ArrayList<Ball>balls;
+
     private ArrayList<Brick>bricks;
+
+
+
 
     private ArrayList<String>curMap;
 
+
+
+    private int curLevel = 1;
 
     public View() {
         //this.data = d;
         this.objects = new ArrayList<GameObject>();
         this.balls = new ArrayList<Ball>();
         this.bricks = new ArrayList<Brick>();
+
         this.curMap = new ArrayList<String>();
+        pauseButton = new Button();
+        loseButton = new Button();
+        addBall = new Button();
+
         initialize();
     }
 
     //viết View(int level) ở đây
 
+
+
     //Viết initialize(int level) ở đây
+
+    /*public void intialize(int level) {
+        //this.curMap =
+    }*/
+
     //level là số thứ tự của level hiện tại
 
     public void initialize() {
         root = new Group();
+
+
+
         Circle onlyBall = new Circle();
         onlyBall.setCenterX(150);
         onlyBall.setCenterY(540-10);
@@ -79,11 +108,6 @@ public class View {
         rect.setHeight(10);
         rect.setFill(Color.GREEN);
 
-        Rectangle bRect = new Rectangle(100,10,100,100);
-        bRect.setFill(Color.BLUE);
-
-        Rectangle bR1 = new Rectangle(500,10,100,100);
-        bR1.setFill(Color.RED);
         /*ArrayList<String>tmpMap = new ArrayList<String>(Arrays.asList(
                 "000000000000",
                 "011100011100",
@@ -115,7 +139,7 @@ public class View {
                 "00001010000"
         ));
 
-
+        //ArrayList<String>tmpMap = mapManager.loadMapIntoArr(curLevel);
 
         /*for(int r = 0; r < 360; r+= 30) {
             for (int c = 50; c < 550; c += 50) {
@@ -140,41 +164,67 @@ public class View {
                     Brick tmpBr = new Brick(tmp);
                     this.bricks.add(tmpBr);
                 }
+                /*switch (tmpMap.get(i).charAt(j)) {
+                    //case '1'
+                }*/
+
+
 
             }
         }
 
         this.platform = new Platform(rect);
-        /*this.br1 = new Brick(bRect);
-        this.br2 = new Brick(bR1);*/
 
-        /*this.b2 = new Ball(BALL_SIZE, WIDTH,HEIGHT, Color.DARKBLUE, Color.WHITESMOKE);
-        this.b3 = new Ball(BALL_SIZE, WIDTH,HEIGHT, Color.DARKBLUE, Color.WHITESMOKE);
-        this.b4 = new Ball(BALL_SIZE, WIDTH,HEIGHT, Color.DARKBLUE, Color.WHITESMOKE);
-        this.b5 = new Ball(BALL_SIZE, WIDTH,HEIGHT, Color.DARKBLUE, Color.WHITESMOKE);
-        this.b6 = new Ball(BALL_SIZE, WIDTH,HEIGHT, Color.DARKBLUE, Color.WHITESMOKE);*/
+        pauseButton = new Button();
+        pauseButton.setText("PAUSE");
+        pauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(Controller.curGameState == Controller.GameState.PLAYING) {
+                    Controller.curGameState = Controller.GameState.PAUSE;
+                } else if (Controller.curGameState == Controller.GameState.PAUSE) {
+                    Controller.curGameState = Controller.GameState.PLAYING;
+                }
+            }
+        });
 
-        /*this.b1 = new Ball(onlyBall);
-        this.b2 = new Ball(circle2);*/
+        loseButton.setText("LOSE");
+        loseButton.setLayoutX(400);
+        loseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(Controller.curGameState == Controller.GameState.PLAYING) {
+                    Controller.curGameState = Controller.GameState.LOSE;
+                }
+            }
+        });
 
-        /*this.objects.add(b1);
-        this.objects.add(b2);
-        this.objects.add(platform);*/
+        addBall.setText("add ball");
+        addBall.setLayoutX(500);
+        addBall.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(Controller.curGameState == Controller.GameState.PLAYING) {
+                    //Controller.curGameState = Controller.GameState.MENU;
+                    Circle c2 = new Circle();
+                    c2.setCenterY(20);
+                    c2.setCenterX(20);
+                    c2.setRadius(10);
+                    c2.setFill(Color.BLUE);
+                    Ball b2 = new Ball(c2);
+                    balls.add(b2);
+                    root.getChildren().add(b2.getHitBox());
+                }
+            }
+        });
 
-        /*this.balls.add(b1);
-        this.balls.add(b2);*/
 
-        /*this.bricks.add(br1);
-        this.bricks.add(br2);*/
+        root.getChildren().add(addBall);
 
-        /*this.balls.add(b2);
-        this.balls.add(b3);
-        this.balls.add(b4);
-        this.balls.add(b5);
-        this.balls.add(b6);*/
-        //root.getChildren().add(b1.getHitBox());
-        //root.getChildren().add(b2.getHitBox());
+        root.getChildren().add(pauseButton);
+        root.getChildren().add(loseButton);
         root.getChildren().add(platform.getHitBox());
+
         /*root.getChildren().add(br1.getHitBox());
         root.getChildren().add(br2.getHitBox());*/
 
@@ -182,6 +232,8 @@ public class View {
             root.getChildren().add(br.getHitBox());
         }
         this.scene = new Scene(root, WIDTH, HEIGHT);
+
+
 
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -234,26 +286,66 @@ public class View {
         return this.bricks;
     }
 
+
     public void removeFromWorld(Brick brick) {
-        brick.reduceDensity();
-        if(brick.getDensity()==0) {
-            root.getChildren().remove(brick.getHitBox());
+        //brick.reduceDensity();
+        if (brick.getDensity() <= 0 && brick.isBreakable()) {
+            this.root.getChildren().remove(brick.getHitBox());
             this.bricks.remove(brick);
+
+            //this.root.getChildren().remove(brick.getHitBox());
         }
     }
 
     public void spawnBall(KeyEvent e) {
-        if(this.balls.isEmpty() && e.getCode()== KeyCode.SPACE) {
+        //System.out.println("gghg");
+        if(this.balls.isEmpty() && e.getCode() == KeyCode.W) {
+            Controller.curGameState = Controller.GameState.PLAYING;
             Circle c1 = new Circle();
             c1.setCenterX(platform.getX() + 50);
             c1.setCenterY(640 - 10);
             c1.setRadius(10);
             c1.setFill(Color.YELLOW);
             Ball b = new Ball(c1);
+
+            /*Circle c2 = new Circle();
+            c2.setCenterY(20);
+            c2.setCenterX(20);
+            c2.setRadius(10);
+            c2.setFill(Color.BLUE);
+            Ball b2 = new Ball(c2);*/
+
+            //this.balls.add(b2);
+
             this.balls.add(b);
-            root.getChildren().add(b.getHitBox());
+            this.root.getChildren().add(b.getHitBox());
+
+            //System.out.println("gghg");
+            //this.root.getChildren().add(b2.getHitBox());
         }
     }
+
+    public void addBall() {
+
+        Circle c2 = new Circle();
+        c2.setCenterX(balls.get(0).getCentreX() + 30);
+        c2.setCenterY(balls.get(0).getCentreY() + 30);
+        c2.setRadius(10);
+        c2.setFill(Color.BLUE);
+        Ball b2 = new Ball(c2);
+        //b2.setSpeed(balls.get(0).getSpeed());
+        balls.add(b2);
+        root.getChildren().add(b2.getHitBox());
+    }
+
+    public void removeBall(Ball b) {
+        this.balls.remove(b);
+        this.root.getChildren().remove(b.getHitBox());
+
+    }
+
+
+
 
 
 

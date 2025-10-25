@@ -5,15 +5,6 @@ public class CollisionManager {
 
     public boolean hitSides(GameObject pl, GameObject b) {
 
-        /*if (pl.getHitBox().intersects(b.getHitBox().getLayoutBounds()) ) {
-
-            if( b.getCentreY() > pl.getY()
-                    && (b.getCentreX() + b.getRadius() >= pl.getX()
-                    || b.getCentreX() - b.getRadius() <= pl.getX()+pl.getW()) ) {
-                    System.out.println("side");
-                return true;
-            }
-        }*/
 
 
 

@@ -26,7 +26,7 @@ public class Main extends Application {
     private static void example1(Stage primaryStage) {
         //Data data = new Data(primaryStage,"Bouncing Balls");
         Controller vc = new Controller(primaryStage);
-        vc.show();
+        vc.run();
     }
 
 
