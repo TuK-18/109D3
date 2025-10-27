@@ -27,6 +27,8 @@ import org.w3c.dom.css.Rect;
 
 import static java.awt.event.KeyEvent.KEY_PRESSED;
 
+import java.lang.ModuleLayer.Controller;
+
 //nhận vào tham số là curLevel để load map của level hiện tại
 //bằng method trong MapManager
 
@@ -34,7 +36,7 @@ public class View {
     //private Data data;
     private Scene scene;
     private Group root;
-
+    private Canvas playCanvas;
 
     private Platform platform;
 
@@ -94,7 +96,7 @@ public class View {
 
     public void initialize() {
         root = new Group();
-
+        this.playCanvas = new Canvas(800, 640);
 
 
         Circle onlyBall = new Circle();
@@ -222,19 +224,26 @@ public class View {
             }
         });
 
+        Canvas otherCanvas = new Canvas(800,640);
+        GraphicsContext otherGc = otherCanvas.getGraphicsContext2D();
+        otherGc.setFill(Color.DARKGREEN);
+        otherGc.fillRect(550,0,800,640);
+
+        root.getChildren().add(otherCanvas);
+        root.getChildren().add(playCanvas);
 
         root.getChildren().add(addBall);
 
         root.getChildren().add(pauseButton);
         root.getChildren().add(loseButton);
-        root.getChildren().add(platform.getHitBox());
+        //root.getChildren().add(platform.getHitBox());
 
         /*root.getChildren().add(br1.getHitBox());
         root.getChildren().add(br2.getHitBox());*/
 
-        for (Brick br : bricks) {
+        /*for (Brick br : bricks) {
             root.getChildren().add(br.getHitBox());
-        }
+        }*/
         this.scene = new Scene(root, WIDTH, HEIGHT);
 
 
@@ -264,7 +273,7 @@ public class View {
             }
         });*/
 
-
+        root.requestFocus();
     }
 
     public void show(Stage stage, Scene scene) {
@@ -296,7 +305,7 @@ public class View {
         if (brick.getDensity() <= 0 && brick.isBreakable()) {
             this.root.getChildren().remove(brick.getHitBox());
             this.bricks.remove(brick);
-
+            this.actualBrickNumber--;
             //this.root.getChildren().remove(brick.getHitBox());
         }
     }
@@ -339,7 +348,7 @@ public class View {
         }
     }
     public void launchBall(KeyEvent e) {
-        if(e.getCode() == KeyCode.F) {
+        if(e.getCode() == KeyCode.W) {
             for (Ball b : balls) {
                 if (Objects.equals(b.getSpeed(), new PVector(0, 0))) {
                 /*double aa = -3.055052212747844;
@@ -403,6 +412,25 @@ public class View {
 
     public void setActualBrickNumber(int x) {
         this.actualBrickNumber = x;
+    }
+
+    public void render() {
+        GraphicsContext gc = playCanvas.getGraphicsContext2D();
+        this.playCanvas.getGraphicsContext2D().clearRect(0,0,550, 640);
+
+        this.platform.render(gc);
+
+        /*for(Ball b : balls) {
+            b.render(gc);
+        }*/
+
+        for (Bonus bo:bonuses) {
+            bo.render(gc);
+        }
+
+        for(Brick br : bricks) {
+            br.render(gc);
+        }
     }
 
 

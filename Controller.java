@@ -83,7 +83,7 @@ public class Controller {
         @Override
         public void handle(long l) {
             update();
-
+            render();
         }
     };
 
@@ -125,10 +125,11 @@ public class Controller {
                     if (view.getBricks().get(i).getDensity() <= 0
                             && view.getBricks().get(i).isBreakable()) {
 
+                        view.spawnBonus(view.getBricks().get(i).getX()
+                                        , view.getBricks().get(i).getY(), 1);
 
                         view.removeFromWorld(view.getBricks().get(i));
-                                /*view.spawnBonus(view.getBricks().get(i).getX()
-                                        , view.getBricks().get(i).getY(), 1);*/
+                                
                         i--;
                         //continue;
 
@@ -213,6 +214,10 @@ public class Controller {
 
     public void update() {
         playingController.updateState();
+    }
+
+    public void render() {
+        this.view.render();
     }
 
     public void showLoseScene() {
