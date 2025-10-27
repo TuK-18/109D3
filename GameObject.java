@@ -2,6 +2,8 @@ import javafx.scene.shape.*;
 import javafx.scene.paint.*;
 import javafx.scene.Node;
 import javafx.scene.shape.Shape;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 public class GameObject {
     protected PVector vSpeed;
@@ -14,6 +16,8 @@ public class GameObject {
     protected Rectangle hitBox1;
     protected Circle hitBox2;
     protected Color color;
+
+    protected Image image;
 
     public int fieldWidth = 600;
     public int fieldHeight = 640;
@@ -57,19 +61,21 @@ public class GameObject {
     }
 
     public double getW() {
-        return w;
+        return this.hitBox1.getWidth();
     }
 
     public void setW(double w) {
         this.w = w;
+        this.hitBox1.setWidth(w);
     }
 
     public double getH() {
-        return h;
+        return this.hitBox1.getHeight();
     }
 
     public void setH(double h) {
         this.h = h;
+        this.hitBox1.setHeight(h);
     }
 
     public Shape getHitBox() {
@@ -108,7 +114,7 @@ public class GameObject {
     }
 
     public double getRadius() {
-        return this.radius;
+        return this.hitBox2.getRadius();
     }
 
     public double getInitialSpeed() {
@@ -121,6 +127,10 @@ public class GameObject {
 
     public void move() {
 
+    }
+
+    public void render(GraphicsContext gc) {
+        gc.drawImage(this.image,this.getX(), this.getY());
     }
 
     public boolean detectCollision(GameObject o) {
@@ -155,6 +165,34 @@ public class GameObject {
             }*/
 
             if (collisionManager.hitTop(o,this)) {
+
+                if(o instanceof Platform) {
+                    
+                    this.setCentreY(this.getCentreY() - this.getRadius());
+                    this.vSpeed.multY(-1);
+                    //System.out.println(((Platform) o).getxVelocity());
+
+
+                    //this one only modifies ball speed
+                    /*if (Math.abs(this.vSpeed.getX()) < 5) {
+                        this.vSpeed.setX(this.vSpeed.getX() + 0.1
+                                * ((double) ((Platform) o).getxVelocity() / 2));
+                    }*/
+
+                    //this one modifies the ball's direction and speed
+                    if ((this.vSpeed.getX() > 0 && ((Platform) o).getxVelocity() < 0)
+                        || (this.vSpeed.getX() < 0 && ((Platform) o).getxVelocity() > 0)) {
+                        //this.vSpeed.setX(this.vSpeed.getX() * -1)
+                        this.vSpeed.multX(-1);
+                    } else {
+                        if (Math.abs(this.vSpeed.getX()) < 5) {
+                            this.vSpeed.setX(this.vSpeed.getX() + 0.1
+                                    * ((double) ((Platform) o).getxVelocity() / 2));
+                        }
+                    }
+                    return true;
+                }
+                SoundManager.playClip1();
                 this.setCentreY(this.getCentreY() - this.getRadius());
                 //this.setCentreY(this.getCentreY());
                 this.vSpeed.multY(-1);
@@ -188,4 +226,9 @@ public class GameObject {
         }
         return false;
     }
+
+    public PVector getvSpeed() {
+        return this.vSpeed;
+    }
+
 }
