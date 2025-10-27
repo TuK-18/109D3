@@ -5,7 +5,7 @@ import javafx.scene.shape.Shape;
 
 
 public class Ball extends GameObject {
-    public int fieldWidth = 600;
+    public int fieldWidth = 550;
     public int fieldHeight = 640;
     private double radius ;
     private double centreX;
@@ -17,8 +17,8 @@ public class Ball extends GameObject {
         this.radius = shape.getRadius();
         this.centreX = shape.getCenterX();
         this.centreY = shape.getCenterY();
-        double aa = -2.055052212747844;
-        double aaa = -2.6132047217868;
+        double aa = -3.055052212747844;
+        double aaa = -3.6132047217868;
         this.vSpeed = new PVector(aa, aaa);
         //this.vSpeed = new PVector(0,0);
 
@@ -56,10 +56,11 @@ public class Ball extends GameObject {
             this.vSpeed.multY(-1);
         }
 
-        if(this.getCentreY() >= this.fieldHeight - this.radius) {
+        /*if(this.getCentreY() >= this.fieldHeight - this.radius) {
             this.setCentreY(this.fieldHeight - this.radius);
             this.vSpeed.multY(-1);
-        }
+        }*/
     }
+
 
 }
