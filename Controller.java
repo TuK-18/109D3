@@ -5,13 +5,20 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+
+import javax.swing.text.View;
+
 import javafx.animation.*;
 import javafx.animation.AnimationTimer;
 import javafx.stage.*;
 
 import javafx.scene.input.KeyEvent;
 import javafx.event.EventHandler;
+
+import java.io.InputStream;
 import java.util.Random;
+
+import javax.swing.text.View;
 
 
 public class Controller {
@@ -25,11 +32,24 @@ public class Controller {
 
     private Scene winScene;
 
+    private LoseSceneController loseSceneController;
+    private WinSceneController winSceneController;
+    private MenuSceneController menuSceneController;
+
     private Group tmpRoot;
 
     private Button playButton;
 
+    private int curPoint = 0;
+    private int curLevel = 1;
+    private int curLives = 10;
+    //TODO : ADD HIGHSCORE
+    private int highScore = 0;
 
+    private final int DEFAULT_POINT = 0;
+    private final int DEFAULT_LEVEL = 1;
+    private final int DEFAULT_LIVES = 10;
+    private final int TOTAL_LEVELS = 7;
 
     public enum GameState{
         PRE_PLAYING,
@@ -41,39 +61,31 @@ public class Controller {
         WIN
     }
 
-    public static GameState curGameState = GameState.PRE_PLAYING;
+    public static GameState curGameState = GameState.MENU;
 
     public Controller(Stage stage_){
         this.stage = stage_;
         this.stage.setWidth(800);
-        view = new View();
-        tmpRoot = new Group();
-        playButton = new Button();
-        playButton.setText("Play again ?");
-        playButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(Controller.curGameState == Controller.GameState.LOSE) {
-                    Controller.curGameState = GameState.PRE_PLAYING;
-                    reset();
-                    //view = new View();
-                    view.show(stage, view.getScene());
-                    mainTimer.start();
-                    //System.out.println("kkkkkkk");
-                    //controller.getView().show(stage, controller.getView().getScene());
-                }
-            }
-        });
-
-
-        tmpRoot.getChildren().add(playButton);
-        loseScene = new Scene(tmpRoot,400,400);
+        view = new View(curLevel);
+        view.setCurScoreText(curPoint);
     }
 
 
 
     public Stage getStage() {
         return this.stage;
+    }
+
+    public void setCurPoint(int x) {
+        curPoint = x;
+    }
+    
+    public void setCurLevel(int x) {
+        curLevel = x;
+    }
+
+    public void setCurLives(int x) {
+        curLives = x;
     }
 
 
@@ -108,11 +120,8 @@ public class Controller {
 
             if (view.getBalls().get(j) != null) {
                 view.getBalls().get(j).move();
-            } //else {
-            //b.move();
-            //}
-            //b.move();
-            //auxAnimate(b);
+            }
+
             view.getBalls().get(j).detectCollision(view.getPlatform());
 
 
@@ -136,29 +145,52 @@ public class Controller {
                     }
                 }
             }
+        }
             // bonus
-            if (!view.getBonuses().isEmpty()) {
-                for (int i = 0; i < view.getBonuses().size(); i++) {
-                    view.getBonuses().get(i).move();
-                    if (view.getBonuses().get(i).detectCollision(view.getPlatform())) {
+        if (!view.getBonuses().isEmpty()) {
+            for (int i = 0; i < view.getBonuses().size(); i++) {
+                view.getBonuses().get(i).move();
+                if (view.getBonuses().get(i).detectCollision(view.getPlatform())) {
 
-                        handleBonus(view.getBonuses().get(i).getType());
-                        view.removeBonus(view.getBonuses().get(i));
-                        continue;
+                    handleBonus(view.getBonuses().get(i).getType());
+                    view.removeBonus(view.getBonuses().get(i));
+                    continue;
 
-                    }
+                }
 
-                    if (view.getBonuses().get(i).getX() >= 640) {
-                        view.removeBonus(view.getBonuses().get(i));
-                    }
+                if (view.getBonuses().get(i).getX() >= 640) {
+                    view.removeBonus(view.getBonuses().get(i));
+                }
+            }
+        }
+
+
+        view.getPlatform().move();
+
+        if(curGameState == GameState.PLAYING) {
+            if (view.getBalls().isEmpty()) {
+                curGameState = GameState.PRE_PLAYING;
+                curLives-=1;
+                if (curLives <= 0) {
+                    curGameState = GameState.LOSE;
                 }
             }
 
+            if (view.getActualBrickNumber() == 0) {
+                curLevel+=1;
 
-            view.getPlatform().move();
-
+                if(curLevel > 2) {
+                    curGameState = GameState.WIN;
+                } else {
+                    curGameState = GameState.LEVEL_UP;
+                    //view = new View(curLevel);
+                }
+            }
         }
+
+        
     }
+
         private void handleBonus(int type) {
             switch (type) {
                 case 1:
@@ -229,29 +261,73 @@ public class Controller {
 
     public void run() {
         playingController = new PlayingController(this);
+
+        winSceneController = new WinSceneController();
+        loseSceneController = new LoseSceneController();
+        menuSceneController = new MenuSceneController();
+
         if(curGameState == GameState.PLAYING || curGameState == GameState.PRE_PLAYING) {
             this.view.show(stage, this.view.getScene());
-        } else if (curGameState == GameState.LOSE) {
-            //this.view.showLose(stage);
-            this.showLoseScene();
+            this.view.setCurScoreText(curPoint);
+            this.view.setCurLivesText(curLives);
+            this.view.setHighScoreText(highScore);
+        } else if (curGameState == GameState.MENU) {
+            this.showMenuScene();
+            stage.show();
         }
         mainTimer.start();
     }
 
     public void reset() {
-        view = new View();
+        view = new View(1);
+        view.setCurScoreText(0);
+        view.setCurLivesText(10);
+        view.show(stage, view.getScene());
+        curLevel = 1;
+        curPoint = 0;
+        curLives = 10;
+        
+        curGameState = GameState.PRE_PLAYING;
 
     }
 
-    private void auxAnimate(GameObject ball) {
-        for (Ball b : this.view.getBalls()) {
-            ball.detectCollision(b);
-        }
+    public void levelUp() {
+        //curGameState = GameState.PRE_PLAYING;
+        view = new View(curLevel);
+        view.show(stage,view.getScene());
+        curGameState = GameState.PRE_PLAYING;
     }
 
-    private void axuAnimate(Platform platform) {
-        for (Ball b : this.view.getBalls()) {
-            b.detectCollision(platform);
-        }
+    /**
+     * SET CURRENT SCORE AND HIGH SCORE FOR THE
+     * LOSE SCENE TO SHOW
+     * */
+
+    public void otherLoseScene() {
+        loseSceneController.setHighScore(highScore);
+        loseSceneController.setLastScore(curPoint);
+        loseSceneController.showScene(stage);
     }
+
+    /**
+     * SET CURRENT SCORE AND HIGH SCORE FOR THE
+     * WIN SCENE TO SHOW.
+     * */
+
+    public void showWinScene() {
+        winSceneController.setHighScore(highScore);
+        winSceneController.setLastScore(curPoint);
+        winSceneController.showScene(stage);
+    }
+
+    public void showMenuScene() {
+        menuSceneController.showScene(stage);
+    }
+
+    public void setPlayScene() {
+        stage.setScene(view.getScene());
+    }
+
+    
+    
 }

@@ -76,9 +76,9 @@ public class SceneController{
         return this.scene;
     }
 
-    /*public void setController(Controller controller) {
-        this.controller = controller;
-    }*/
+    public void initialize(){
+
+    }
 
     public void setLastScore(int x) {
         this.lastScore = x;
