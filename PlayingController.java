@@ -61,48 +61,58 @@ public class PlayingController {
     public void updateState() {
         switch (Controller.curGameState) {
             case PLAYING:
-                System.out.println("playing");
+                //System.out.println("playing");
                 controller.animate();
                 //testAnimate();
                 break;
             case PAUSE:
-                System.out.println("pause");
+                //System.out.println("pause");
                 timeline.pause();
+                controller.writeData();
                 break;
-            /*case LOSE:
-                timeline.pause();
-
-                break;*/
+            
             case LOSE:
-                System.out.println("lose");
-
+                //System.out.println("lose");
+                SoundManager.playLoseSfx();
                 timeline.pause();
-                controller.stopMainTimer();
-                controller.showLoseScene();
-
+                //controller.stopMainTimer();
+                //controller.showLoseScene();
+                controller.otherLoseScene();
+                controller.resetPlayerData();
+                //controller.reset();
+                //controller.deepClean();
+                //controller.writeData();
                 break;
-
             case PRE_PLAYING:
-                System.out.println("pre playing");
+                //System.out.println("pre");
+                controller.setPlayScene();
                 controller.animate();
                 break;
+            case LEVEL_UP:
+
+                controller.stopMainTimer();
+                controller.levelUp();
+                controller.startMainTimer();
+                break;
+            case RESET:
+                controller.stopMainTimer();
+                SoundManager.stopLoseSfx();
+                controller.reset();
+                controller.startMainTimer();
+                break;
+            case WIN:
+                timeline.pause();
+                //controller.stopMainTimer();
+                //controller.showLoseScene();
+                controller.showWinScene();
+                controller.resetPlayerData();
+                break;
+            case MENU:
+                //controller.showMenuScene();
+                //System.out.println("menu");
+                break;
 
         }
     }
 
-
-
-    /*
-    public void testAnimate() {
-        for (Ball b : view.getBalls() ) {
-            b.move();
-            axuAnimate(b);
-        }
-    }
-
-    private void axuAnimate(Ball ball) {
-        for (Ball b : this.view.getBalls()) {
-            ball.detectCollision(b);
-        }
-    }*/
 }

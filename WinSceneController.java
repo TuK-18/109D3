@@ -67,7 +67,9 @@ public class WinSceneController extends SceneController{
         playAgainButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                
+                if(Controller.curGameState == Controller.GameState.WIN) {
+                    Controller.curGameState = Controller.GameState.RESET;
+                }
             }
         });
 

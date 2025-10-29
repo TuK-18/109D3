@@ -43,24 +43,28 @@ public class MenuSceneController extends SceneController {
         playAgainButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-
+                if (Controller.curGameState == Controller.GameState.MENU) {
+                    Controller.curGameState = Controller.GameState.PRE_PLAYING;
+                }
             }
-        }
-    });
+        
+        });
 
         resetButton.setLayoutX(265);
         resetButton.setText("RESET");
         resetButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-
-        }
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (Controller.curGameState == Controller.GameState.MENU) {
+                    Controller.curGameState = Controller.GameState.RESET;
+                }
+            }
+    
+        });
     }
-});
-        }
 
-@Override
-public void showScene(Stage stage) {
-    stage.setScene(this.scene);
-}
+    @Override
+    public void showScene(Stage stage) {
+        stage.setScene(this.scene);
+    }
 }

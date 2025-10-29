@@ -72,7 +72,9 @@ public class LoseSceneController extends SceneController{
         playAgainButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                
+                if(Controller.curGameState == Controller.GameState.LOSE) {
+                    Controller.curGameState = Controller.GameState.RESET;
+                }
             }
         });
     }
