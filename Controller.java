@@ -15,6 +15,11 @@ import javafx.stage.*;
 import javafx.scene.input.KeyEvent;
 import javafx.event.EventHandler;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
@@ -44,7 +49,7 @@ public class Controller {
     private int curLevel = 1;
     private int curLives = 10;
     //TODO : ADD HIGHSCORE
-    private int highScore = 0;
+    private int highScore ;
 
     private final int DEFAULT_POINT = 0;
     private final int DEFAULT_LEVEL = 1;
@@ -199,15 +204,15 @@ public class Controller {
                     break;
                 case 2:
                     //ADD 100 POINTS
-//                    this.curPoint += 100;
-//                    break;
+                    this.curPoint += 100;
+                    break;
                 case 3:
                     //MAKE PLATFORM STICKY
-//                    this.isSticky = true;
+                    //this.isSticky = true;
                     //curGameState = GameState.PRE_PLAYING;
                     break;
                 case 4:
-//                    this.curPoint -= 500;
+                    this.curPoint -= 500;
                     break;
                 case 5:
                     view.setActualBrickNumber(0);
@@ -228,7 +233,7 @@ public class Controller {
                     break;
                 case 10:
                     //+1 LIVE
-//                    this.curLives += 1;
+                    this.curLives += 1;
                     break;
                 case 11:
                     //SLOW BALLS
@@ -250,6 +255,28 @@ public class Controller {
 
     public void render() {
         this.view.render();
+    }
+
+    //clean all unneeded map files
+    public void deepClean() {
+        File tmpFile = new File("res/map0.data");
+        for (int i = 1 ; i <= TOTAL_LEVELS ; i++) {
+
+            tmpFile = new File("res/map" + i + ".data");
+            if (tmpFile.delete()) {
+                System.out.println("deleted " + i);
+            }
+
+        }
+    }
+
+    //clean the map file of the next level
+    public void cleanOne(int i) {
+        //File tmpFile = new File("res/map0.data");
+        File tmpFile = new File("res/map"+i+".data");
+        if (tmpFile.delete()) {
+            System.out.println("deleted " + i);
+        }
     }
 
     public void showLoseScene() {
@@ -278,7 +305,10 @@ public class Controller {
         mainTimer.start();
     }
 
+    //RESET EVERYTHING AND CLEAR ALL MAP DATA
     public void reset() {
+        deepClean();
+        resetBonus();
         view = new View(1);
         view.setCurScoreText(0);
         view.setCurLivesText(10);
@@ -286,15 +316,38 @@ public class Controller {
         curLevel = 1;
         curPoint = 0;
         curLives = 10;
-        
+        //deepClean();
+        writeData();
         curGameState = GameState.PRE_PLAYING;
+    }
 
+    public void resetPlayerData() {
+        deepClean();
+        curLevel = 1;
+        //curPoint = 0;
+        //CAN'T RESET POINT YET BECAUSE
+        //THE LOSE & WIN SCENE NEED TO SHOW IT
+        curLives = 10;
+        writeData();
+    }
+
+    public void resetBonus() {
+        
+        view.getPlatform().setW(150);
     }
 
     public void levelUp() {
         //curGameState = GameState.PRE_PLAYING;
+        //deepClean();
+        cleanOne(curLevel);
         view = new View(curLevel);
+        view.setCurScoreText(curPoint);
+        view.setCurLivesText(curLives);
+        view.setHighScoreText(highScore);
         view.show(stage,view.getScene());
+        //deepClean();
+        resetBonus();
+        writeData();
         curGameState = GameState.PRE_PLAYING;
     }
 
@@ -326,6 +379,61 @@ public class Controller {
 
     public void setPlayScene() {
         stage.setScene(view.getScene());
+    }
+
+    /**
+     * READ POINT, LEVEL, AND LIVES FROM A FILE
+     * READ HIGH SCORE FROM A DIFFERENT FILE.*/
+
+    public void readData() {
+        //point
+        //level
+        //lives
+        try {
+            File file = new File("res/playerData.txt");
+
+            FileReader reader = new FileReader(file);
+
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            String point = bufferedReader.readLine();
+            curPoint = Integer.parseInt(point);
+            String level = bufferedReader.readLine();
+            curLevel = Integer.parseInt(level);
+            String lives = bufferedReader.readLine();
+            curLives = Integer.parseInt(lives);
+
+            if (curLevel > TOTAL_LEVELS) {
+                curPoint = DEFAULT_POINT;
+                curLevel = DEFAULT_LEVEL;
+                curLives = DEFAULT_LIVES;
+            }
+
+        } catch (FileNotFoundException e) {
+            curPoint = DEFAULT_POINT;
+            curLevel = DEFAULT_LEVEL;
+            curLives = DEFAULT_LIVES;
+            System.out.println("Can't find res/playerData.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            File highScoreFile = new File("res/highScore.txt");
+
+            FileReader reader = new FileReader(highScoreFile);
+
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            String tmpHighScore = bufferedReader.readLine();
+            //highSc =
+            highScore = Integer.parseInt(tmpHighScore);
+
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Can't find res/highScore.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     

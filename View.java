@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 import javafx.scene.Scene;
 import javafx.scene.Group;
@@ -27,6 +28,14 @@ import org.w3c.dom.css.Rect;
 
 import static java.awt.event.KeyEvent.KEY_PRESSED;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.ModuleLayer.Controller;
 
 //nhận vào tham số là curLevel để load map của level hiện tại
@@ -64,9 +73,19 @@ public class View {
 
     private ArrayList<String>curMap;
 
-
+    private MapManager mapManager;
 
     private int curLevel = 1;
+
+    private Text curScoreText;
+
+    private Text curLevelText;
+
+    private Text curLivesText;
+
+    private Text highScoreText;
+
+    private Font font;
 
     public View() {
         //this.data = d;
@@ -82,7 +101,39 @@ public class View {
         initialize();
     }
 
-    //viết View(int level) ở đây
+    public View(int level) {
+        this.curLevel = level;
+        this.objects = new ArrayList<GameObject>();
+        this.balls = new ArrayList<Ball>();
+        this.bricks = new ArrayList<Brick>();
+        this.bonuses = new ArrayList<Bonus>();
+        this.curMap = new ArrayList<String>();
+        pauseButton = new Button();
+        resetButton = new Button();
+        addBall = new Button();
+
+        mapManager = new MapManager();
+
+        try {
+            File file = new File("res/map" + curLevel + ".data");
+
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            ObjectInputStream os = new ObjectInputStream(fileInputStream);
+
+            mapManager = (MapManager) os.readObject();
+        } catch (FileNotFoundException e) {
+            System.out.println("The first play");
+            
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            
+        }
+
+        InputStream fontStream = getClass().getResourceAsStream("fontName.ttf");
+        font = Font.loadFont(fontStream, 40);
+        initialize();
+    }
 
 
 
@@ -98,6 +149,29 @@ public class View {
         root = new Group();
         this.playCanvas = new Canvas(800, 640);
 
+        this.curScoreText = new Text();
+        this.curScoreText.setText("SCORE \n");
+        this.curScoreText.setX(570);
+        this.curScoreText.setY(110);
+        this.curScoreText.setFont(font);
+
+        this.curLevelText = new Text();
+        this.curLevelText.setFont(font);
+        this.curLevelText.setX(630);
+        this.curLevelText.setY(210);
+        this.curLevelText.setText("LEVEL \n" + curLevel);
+
+        this.curLivesText = new Text();
+        this.curLivesText.setText("LIVES\n");
+        this.curLivesText.setX(630);
+        this.curLivesText.setY(310);
+        this.curLivesText.setFont(font);
+
+        this.highScoreText = new Text();
+        this.highScoreText.setFont(font);
+        this.highScoreText.setX(690);
+        this.highScoreText.setY(70);
+        this.highScoreText.setText("HIGH\nSCORE\n");
 
         Circle onlyBall = new Circle();
         onlyBall.setCenterX(150);
@@ -112,24 +186,9 @@ public class View {
         rect.setY(640-10);
         rect.setWidth(150);
         rect.setHeight(10);
-        rect.setFill(Color.GREEN);
+        
 
         /*ArrayList<String>tmpMap = new ArrayList<String>(Arrays.asList(
-                "000000000000",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "011100011100",
-                "000000000000"
-        ));*/
-
-        ArrayList<String>tmpMap = new ArrayList<String>(Arrays.asList(
                 "00010001000",
                 "00001010000",
                 "00001010000",
@@ -143,24 +202,15 @@ public class View {
                 "01010001010",
                 "01010001010",
                 "00001010000"
-        ));
+        ));*/
 
-        //ArrayList<String>tmpMap = mapManager.loadMapIntoArr(curLevel);
+        ArrayList<String>tmpMap = mapManager.loadMapIntoArr(curLevel);
 
-        /*for(int r = 0; r < 360; r+= 30) {
-            for (int c = 50; c < 550; c += 50) {
-                Rectangle tmp = new Rectangle(c, r, 50, 30);
-                tmp.setFill(Color.RED);
-                tmp.setStroke(Color.BLACK);
-                tmp.setStrokeWidth(3);
-                Brick tmpBr = new Brick(tmp);
-                this.bricks.add(tmpBr);
-            }
-        }*/
+        
 
         for (int i = 0; i < 13; i++) {
             for (int j = 0; j < 11; j++) {
-                if(tmpMap.get(i).charAt(j) == '1'){
+                /*if(tmpMap.get(i).charAt(j) == '1'){
                     int x = j * 50;
                     int y = i * 30;
                     Rectangle tmp = new Rectangle(x, y, 50, 30);
@@ -169,12 +219,27 @@ public class View {
                     tmp.setStrokeWidth(3);
                     Brick tmpBr = new Brick(tmp);
                     this.bricks.add(tmpBr);
-                }
+                }*/
                 /*switch (tmpMap.get(i).charAt(j)) {
                     //case '1'
                 }*/
 
+                if (tmpMap.get(i).charAt(j) == '5') {
+                    int x = j * 50;
+                    int y = i * 30;
+                    Rectangle tmp = new Rectangle(x, y, 50, 30);
 
+                    Brick tmpBr = new Brick(tmp, false);
+                    this.bricks.add(tmpBr);
+                } else if (tmpMap.get(i).charAt(j) != '0') {
+                    int x = j * 50;
+                    int y = i * 30;
+                    Rectangle tmp = new Rectangle(x, y, 50, 30);
+
+                    Brick tmpBr = new Brick(tmp, tmpMap.get(i).charAt(j) - '0');
+                    this.bricks.add(tmpBr);
+                    actualBrickNumber++;
+                }
 
             }
         }
@@ -183,24 +248,47 @@ public class View {
 
         pauseButton = new Button();
         pauseButton.setText("PAUSE");
+        pauseButton.setFont(Font.font(font.getFamily(),24));
+        pauseButton.setLayoutX(560);
         pauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 if(Controller.curGameState == Controller.GameState.PLAYING) {
                     Controller.curGameState = Controller.GameState.PAUSE;
+                    writeMapData();
                 } else if (Controller.curGameState == Controller.GameState.PAUSE) {
                     Controller.curGameState = Controller.GameState.PLAYING;
                 }
             }
         });
 
-        loseButton.setText("LOSE");
-        loseButton.setLayoutX(400);
-        loseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        resetButton.setText("RESET");
+        resetButton.setFont(Font.font(font.getFamily(),24));
+        resetButton.setLayoutX(680);
+        resetButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if(Controller.curGameState == Controller.GameState.PLAYING) {
-                    Controller.curGameState = Controller.GameState.LOSE;
+                /*if(Controller.curGameState == Controller.GameState.PLAYING) {
+                    Controller.curGameState = Controller.GameState.RESET;
+                    writeMapData();
+                }*/
+                if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
+                    Controller.curGameState = Controller.GameState.PAUSE;
+                    writeMapData();
+                    Alert resetAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                    resetAlert.setTitle("Reset confirmation");
+                    resetAlert.setHeaderText("Are you sure you want to reset?");
+
+                    Optional<ButtonType> result = resetAlert.showAndWait();
+
+                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                        if (Controller.curGameState == Controller.GameState.PAUSE) {
+                            Controller.curGameState = Controller.GameState.RESET;
+                            writeMapData();
+                        }
+                    } else {
+                        Controller.curGameState = Controller.GameState.PLAYING;
+                    }
                 }
             }
         });
@@ -212,14 +300,22 @@ public class View {
             public void handle(MouseEvent mouseEvent) {
                 if(Controller.curGameState == Controller.GameState.PLAYING) {
                     //Controller.curGameState = Controller.GameState.MENU;
-                    Circle c2 = new Circle();
+
+                    /*Circle c2 = new Circle();
                     c2.setCenterY(20);
                     c2.setCenterX(20);
                     c2.setRadius(10);
                     c2.setFill(Color.BLUE);
                     Ball b2 = new Ball(c2);
                     balls.add(b2);
-                    root.getChildren().add(b2.getHitBox());
+                    root.getChildren().add(b2.getHitBox());*/
+                    addBall();
+                    /*if (platform.getW() <= 150 ) {
+                        if(platform.getX() + platform.getW() + 50 >= 550){
+                            platform.setX(platform.getX() - 50);
+                        }
+                        platform.setW(platform.getW() + 50);
+                    }*/
                 }
             }
         });
@@ -231,11 +327,15 @@ public class View {
 
         root.getChildren().add(otherCanvas);
         root.getChildren().add(playCanvas);
+        root.getChildren().add(curScoreText);
+        root.getChildren().add(curLevelText);
+        root.getChildren().add(curLivesText);
+        root.getChildren().add(highScoreText);
 
         root.getChildren().add(addBall);
 
         root.getChildren().add(pauseButton);
-        root.getChildren().add(loseButton);
+        root.getChildren().add(resetButton);
         //root.getChildren().add(platform.getHitBox());
 
         /*root.getChildren().add(br1.getHitBox());
@@ -262,18 +362,25 @@ public class View {
             public void handle(KeyEvent event) {
                 platform.handleEvent(event);
                 spawnBall(event);
-                //platform.move();
             }
         });
 
-        /*scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                spawnBall();
-            }
-        });*/
 
         root.requestFocus();
+
+    }
+
+    public void writeMapData() {
+        try{
+            File file = new File("res/map" + curLevel + ".data");
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            ObjectOutputStream os = new ObjectOutputStream(fileOutputStream);
+            os.writeObject(mapManager);
+            os.close();
+        } catch (IOException e) {
+            System.out.println("Write object exception");
+            e.printStackTrace();
+        }
     }
 
     public void show(Stage stage, Scene scene) {
@@ -433,6 +540,17 @@ public class View {
         }
     }
 
+    public void setCurScoreText(int curScore) {
+        this.curScoreText.setText("SCORE \n" + curScore);
+    }
+
+    public void setCurLivesText(int curLives) {
+        this.curLivesText.setText("LIVES \n" + curLives);
+    }
+
+    public void setHighScoreText(int highScore) {
+        this.highScoreText.setText("HIGH\nSCORE\n" + highScore);
+    }
 
 
 }
