@@ -1,10 +1,9 @@
 Thanh:
 Làm skeleton game, logic game
-Thêm render, sound
+Thêm render, sound, lưu game
 
 Vũ:
 Gamestate 
-Lưu game 
 
 Tùng: 
 PowerUp
