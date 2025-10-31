@@ -35,6 +35,22 @@ public class Bonus extends Brick{
         this.setY(this.getY() + yVelocity);
     }
 
+    public void move(double x, double y) {
+        if (this.type == 4
+                || this.type == 6
+                || this.type == 9
+                || this.type == 11) {
+            this.move();
+        } else {
+            PVector speed = new PVector(x - this.getX(), y - this.getY());
+            speed.normalize();
+            speed.mult(3);
+
+            this.setX(this.getX() + speed.getX());
+            this.setY(this.getY() + speed.getY());
+        }
+    }
+
     public boolean detectCollision(Platform platform) {
         if (platform.getHitBox().intersects(this.getHitBox().getLayoutBounds())){
             return true;
