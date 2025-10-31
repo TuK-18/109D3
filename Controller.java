@@ -56,6 +56,12 @@ public class Controller {
     private final int DEFAULT_LIVES = 10;
     private final int TOTAL_LEVELS = 7;
 
+    private boolean isSticky = false;
+    public static boolean laser = false;
+    private boolean magnet = false;
+    private int ballPower = 1;
+
+
     public enum GameState{
         PRE_PLAYING,
         PLAYING,
@@ -154,16 +160,27 @@ public class Controller {
             // bonus
         if (!view.getBonuses().isEmpty()) {
             for (int i = 0; i < view.getBonuses().size(); i++) {
-                view.getBonuses().get(i).move();
+
+                if (magnet) {
+                    view.getBonuses().get(i).move(view.getPlatform().getX()
+                                    + view.getPlatform().getW() / 2
+                            , view.getPlatform().getY());
+
+                } else {
+                    view.getBonuses().get(i).move();
+                }
+
                 if (view.getBonuses().get(i).detectCollision(view.getPlatform())) {
 
-                    handleBonus(view.getBonuses().get(i).getType());
+                    if (Controller.curGameState == GameState.PLAYING) {
+                        handleBonus(view.getBonuses().get(i).getType());
+                    }
                     view.removeBonus(view.getBonuses().get(i));
                     continue;
 
                 }
 
-                if (view.getBonuses().get(i).getX() >= 640) {
+                if(view.getBonuses().get(i).getX() >= 640) {
                     view.removeBonus(view.getBonuses().get(i));
                 }
             }
@@ -239,8 +256,21 @@ public class Controller {
                     //SLOW BALLS
                     view.modifyBallSpeed(0.5);
                     break;
+                case 12:
+                    //LOAD THE LASER
+                    //laser = true;
+                    //view.shootLaser(laser);
+                    view.setLaserShots(3);
+                    break;
+                case 13:
+                    //BONUSES FLY TOWARDS PLATFORM
+                    magnet = true;
+                    break;
 
-
+                case 14:
+                    //MAKE BALL STRONGER
+                    this.ballPower = 2;
+                    break;
             }
         }
 
@@ -332,7 +362,11 @@ public class Controller {
     }
 
     public void resetBonus() {
-        
+        this.isSticky = false;
+        laser = false;
+        magnet = false;
+        this.ballPower = 1;
+        view.setLaserShots(0);
         view.getPlatform().setW(150);
     }
 
