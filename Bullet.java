@@ -23,7 +23,7 @@ public class Bullet extends Ball{
         this.setCentreY(newSpeed.getY());
     }
 
-    @Override
+
     public boolean detectCollision(GameObject o) {
 
         if (o != this && o.getHitBox().intersects(this.getHitBox().getLayoutBounds())) {

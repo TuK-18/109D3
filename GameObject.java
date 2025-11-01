@@ -18,13 +18,10 @@ public abstract class GameObject {
 
     protected Rectangle hitBox1;
     protected Circle hitBox2;
-    protected Color color;
+
 
     protected Image image;
 
-    public int fieldWidth = 600;
-    public int fieldHeight = 640;
-    protected double radius ;
     protected double centreX;
     protected double centreY;
 
@@ -139,9 +136,6 @@ public abstract class GameObject {
     public PVector getvSpeed() {
         return this.vSpeed;
     }
-
-
-
 
 
     public abstract boolean handleObjectCollision(GameObject o);

@@ -100,4 +100,17 @@ public class PVector {
         return new PVector(this.x, this.y);
     }
 
+    public boolean equals(Object o) {
+        if (!(o instanceof PVector)) {
+            return false;
+        }
+
+        PVector other = (PVector) o;
+        if (other.getX() == this.x
+                && other.getY() == this.y) {
+            return true;
+        }
+        return false;
+    }
+
 }

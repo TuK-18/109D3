@@ -21,11 +21,10 @@ public class Ball extends GameObject {
         this.centreY = shape.getCenterY();
         /*double aa = -2.055052212747844;
         double aaa = -2.6132047217868;*/
-        double aa = -3.055052212747844;
-        double aaa = -3.6132047217868;
+        double aa = -4.055052212747844;
+        double aaa = -4.6132047217868;
         this.vSpeed = new PVector(aa, aaa);
         //this.vSpeed = new PVector(0,0);
-
     }
 
     public PVector getSpeed() {
@@ -106,6 +105,7 @@ public class Ball extends GameObject {
         if (!(o instanceof Brick)) {
             return false;
         }
+
         double ballx = this.getCentreX();
         double bally = this.getCentreY();
         double ballradius = this.getRadius();
@@ -129,6 +129,8 @@ public class Ball extends GameObject {
         }
 
         // neu co var?? chuan hoa vecto de phuc vu tinh phap
+        SoundManager.playClip1();
+
         double len = Math.sqrt(dx * dx + dy * dy);
         if (len == 0) len = 0.001; // tranh chia  0
 

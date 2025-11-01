@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
@@ -53,8 +54,12 @@ public class SceneController{
         this.lastScoreText = new Text();
         this.highScoreText = new Text();
         this.sceneText = new Text();
-        
-        
+        InputStream fontStream = getClass().getResourceAsStream("fontName.ttf");
+        font = Font.loadFont(fontStream, 50);
+        playAgainButton.setFont(font);
+        sceneText.setFont(Font.font(font.getFamily(), 60));
+        lastScoreText.setFont(Font.font(font.getFamily(), 30));
+        highScoreText.setFont(Font.font(font.getFamily(), 30));
 
         root.getChildren().add(playAgainButton);
         root.getChildren().add(imageView);
@@ -75,6 +80,10 @@ public class SceneController{
     public Scene getScene() {
         return this.scene;
     }
+
+    /*public void setController(Controller controller) {
+        this.controller = controller;
+    }*/
 
     public void initialize(){
 
