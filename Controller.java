@@ -28,18 +28,10 @@ public class Controller {
     private Stage stage;
     private View view;
     private CollisionManager  collisionManager = new CollisionManager();
-    private Font font;
-
-    private Scene loseScene;
-    private Scene winScene;
 
     private LoseSceneController loseSceneController;
     private WinSceneController winSceneController;
     private MenuSceneController menuSceneController;
-
-    private Group tmpRoot;
-    private Button playButton;
-    private Text lastScoreText;
 
     private int curPoint = 0;
     private int curLevel = 1;
@@ -72,18 +64,25 @@ public class Controller {
 
     public static GameState curGameState = GameState.MENU;
 
-    public Controller(Stage stage_){
+    private static Controller instance;
+
+    private Controller(Stage stage_) {
         soundManager = SoundManager.getSoundManagerInstance();
         readData();
         this.stage = stage_;
         this.stage.setWidth(800);
         //InputStream fontStream = getClass().getResourceAsStream("/res/fontName.ttf");
-        InputStream fontStream = getClass().getResourceAsStream("fontName.ttf");
-        font = Font.loadFont(fontStream, 50);
+
         view = new View(curLevel);
         view.setCurScoreText(curPoint);
         view.setHighScoreText(highScore);
-        //makeLoseScene();
+    }
+
+    public static Controller getInstance(Stage stage) {
+        if (instance == null) {
+            instance = new Controller(stage);
+        }
+        return instance;
     }
 
     public Stage getStage() {
@@ -149,10 +148,6 @@ public class Controller {
                 }
             }
 
-
-
-            //view.shootLaser(laser);
-
             if(Objects.equals(view.getBalls().get(j).getSpeed(), new PVector(0, 0))){
                 if (view.getPlatform().getX() + view.getPlatform().getW() < 550
                         && view.getPlatform().getX() > 0) {
@@ -163,40 +158,54 @@ public class Controller {
 
                 }
             }
-
                     /*if (isSticky) {
                         view.getBalls().get(j).setCentreX(view.getPlatform().getX());
                     }*/
-
-
             for (int i = 0; i < view.getBricks().size(); i++) {
-                if (view.getBalls().get(j).handleObjectCollision((view.getBricks().get(i)))) {
-                            /*if (view.getBalls().get(j) instanceof Bullet) {
-                                view.removeBall(view.getBalls().get(j));
 
-                            }*/
-                    view.getBricks().get(i).reduceDensity(ballPower);
-                    //if(view.getBricks().get(i).isBreakable())curPoint+=10;
-                    if (view.getBricks().get(i).getDensity() <= 0
-                            && view.getBricks().get(i).isBreakable()) {
+                if (view.getBalls().get(j) instanceof Bullet) {
+                    if (((Bullet) view.getBalls().get(j))
+                            .detectCollision(view.getBricks().get(i))) {
+                        view.getBricks().get(i).reduceDensity(ballPower);
+                        //if(view.getBricks().get(i).isBreakable())curPoint+=10;
+                        if (view.getBricks().get(i).getDensity() <= 0
+                                && view.getBricks().get(i).isBreakable()) {
 
-                        curPoint += (10) * view.getBricks().get(i).getType();
+                            curPoint += (10) * view.getBricks().get(i).getType();
 
-                        if(RNG(0,2) == 0) {
-                            SoundManager.playExplosionClip();
-                            view.spawnBonus(view.getBricks().get(i).getX()
-                                    , view.getBricks().get(i).getY(), RNG(1, 14));
+                            if (RNG(0, 4) == 0) {
+                                SoundManager.playExplosionClip();
+                                view.spawnBonus(view.getBricks().get(i).getX()
+                                        , view.getBricks().get(i).getY(), RNG(1, 14));
+                            }
+                            view.removeFromWorld(view.getBricks().get(i));
+
+                            i--;
                         }
-                        view.removeFromWorld(view.getBricks().get(i));
+                    }
+                } else {
+                    if (view.getBalls().get(j).handleObjectCollision((view.getBricks().get(i)))) {
 
-                        i--;
-                        //continue;
+                        view.getBricks().get(i).reduceDensity(ballPower);
+                        //if(view.getBricks().get(i).isBreakable())curPoint+=10;
+                        if (view.getBricks().get(i).getDensity() <= 0
+                                && view.getBricks().get(i).isBreakable()) {
 
+                            curPoint += (10) * view.getBricks().get(i).getType();
+
+                            if (RNG(0, 4) == 0) {
+                                SoundManager.playExplosionClip();
+                                view.spawnBonus(view.getBricks().get(i).getX()
+                                        , view.getBricks().get(i).getY(), RNG(1, 14));
+                            }
+                            view.removeFromWorld(view.getBricks().get(i));
+                            i--;
+
+                        }
                     }
                 }
             }
         }
-
 
         if (!view.getBonuses().isEmpty()) {
             for (int i = 0; i < view.getBonuses().size(); i++) {
@@ -210,9 +219,9 @@ public class Controller {
                     view.getBonuses().get(i).move();
                 }
 
-
                 // check va cham giua bonus va platform
-                if (collisionManager.detectBoxBoxCollision(view.getBonuses().get(i) , view.getPlatform())) {
+                if (collisionManager.detectBoxBoxCollision(view.getBonuses().get(i)
+                        , view.getPlatform())) {
 
                     // su ly bonus
                     if (Controller.curGameState == GameState.PLAYING) {
@@ -346,9 +355,9 @@ public class Controller {
         view.setCurScoreText(0);
         view.setCurLivesText(10);
         view.show(stage, view.getScene());
-        curLevel = 1;
-        curPoint = 0;
-        curLives = 10;
+        curLevel = DEFAULT_LEVEL;
+        curPoint = DEFAULT_POINT;
+        curLives = DEFAULT_LIVES;
         //deepClean();
         writeData();
         curGameState = GameState.PRE_PLAYING;
@@ -371,7 +380,11 @@ public class Controller {
         this.ballPower = 1;
         //this.laserShots = 0;
         view.setLaserShots(0);
-        view.getPlatform().setW(150);
+        //view.getPlatform().setW(150);
+        if(view.getPlatform().getX() + 150 >= 550){
+            view.getPlatform().setX(view.getPlatform().getX() - 150);
+            view.getPlatform().setW(150);
+        }
     }
 
     /**
@@ -482,7 +495,7 @@ public class Controller {
      * LOSE SCENE TO SHOW
      * */
 
-    public void otherLoseScene() {
+    public void showLoseScene() {
         loseSceneController.setHighScore(highScore);
         loseSceneController.setLastScore(curPoint);
         loseSceneController.showScene(stage);
@@ -541,6 +554,9 @@ public class Controller {
             curLives = DEFAULT_LIVES;
             System.out.println("Can't find res/playerData.txt");
         } catch (IOException e) {
+            curPoint = DEFAULT_POINT;
+            curLevel = DEFAULT_LEVEL;
+            curLives = DEFAULT_LIVES;
             e.printStackTrace();
         }
 
@@ -551,13 +567,13 @@ public class Controller {
 
             BufferedReader bufferedReader = new BufferedReader(reader);
             String tmpHighScore = bufferedReader.readLine();
-            //highSc =
             highScore = Integer.parseInt(tmpHighScore);
 
-
         } catch (FileNotFoundException e) {
+            highScore = 0;
             System.out.println("Can't find res/highScore.txt");
         } catch (IOException e) {
+            highScore = 0;
             e.printStackTrace();
         }
 
@@ -596,6 +612,5 @@ public class Controller {
             e.printStackTrace();
         }
     }
-
 
 }

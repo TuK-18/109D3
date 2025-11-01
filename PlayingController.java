@@ -27,8 +27,6 @@ public class PlayingController {
     //private View view;
     Timeline timeline = new Timeline();
 
-
-
     //private Button tButton = new Button();
 
     public PlayingController(Controller controller) {
@@ -70,19 +68,23 @@ public class PlayingController {
                 timeline.pause();
                 controller.writeData();
                 break;
-            
+            /*case LOSE:
+                timeline.pause();
+
+                break;*/
             case LOSE:
                 //System.out.println("lose");
                 SoundManager.playLoseSfx();
                 timeline.pause();
                 //controller.stopMainTimer();
                 //controller.showLoseScene();
-                controller.otherLoseScene();
+                controller.showLoseScene();
                 controller.resetPlayerData();
                 //controller.reset();
                 //controller.deepClean();
                 //controller.writeData();
                 break;
+
             case PRE_PLAYING:
                 //System.out.println("pre");
                 controller.setPlayScene();
@@ -101,6 +103,7 @@ public class PlayingController {
                 controller.startMainTimer();
                 break;
             case WIN:
+
                 timeline.pause();
                 //controller.stopMainTimer();
                 //controller.showLoseScene();
@@ -111,8 +114,40 @@ public class PlayingController {
                 //controller.showMenuScene();
                 //System.out.println("menu");
                 break;
-
+            /*case MENU:
+                //this.sc
+                Group tmpRoot = new Group();
+                Button playButton = new Button();
+                playButton.setText("play");
+                playButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        if(Controller.curGameState == Controller.GameState.MENU) {
+                            Controller.curGameState = Controller.GameState.PLAYING;
+                            controller.getView().show(stage, controller.getView().getScene());
+                        }
+                    }
+                });
+                tmpRoot.getChildren().add(playButton);
+                Scene loseScene = new Scene(tmpRoot,400,400);
+                stage.setScene(loseScene);
+                break;*/
         }
     }
 
+
+
+    /*
+    public void testAnimate() {
+        for (Ball b : view.getBalls() ) {
+            b.move();
+            axuAnimate(b);
+        }
+    }
+
+    private void axuAnimate(Ball ball) {
+        for (Ball b : this.view.getBalls()) {
+            ball.detectCollision(b);
+        }
+    }*/
 }

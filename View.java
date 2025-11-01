@@ -3,6 +3,8 @@
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -10,13 +12,19 @@ import java.util.Optional;
 
 import javafx.scene.Scene;
 import javafx.scene.Group;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
@@ -24,25 +32,9 @@ import javafx.scene.shape.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import org.w3c.dom.css.Rect;
 
-import static java.awt.event.KeyEvent.KEY_PRESSED;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.ModuleLayer.Controller;
-
-//nhận vào tham số là curLevel để load map của level hiện tại
-//bằng method trong MapManager
 
 public class View {
-    //private Data data;
     private Scene scene;
     private Group root;
     private Canvas playCanvas;
@@ -51,27 +43,28 @@ public class View {
 
     private Button pauseButton;
 
-    private Button loseButton;
+    private Button resetButton;
 
-    private Button addBall;
+    //private Button addBall;
 
-    private final int WIDTH = 600;
+    private final int WIDTH = 800;
     private final int HEIGHT = 640;
-    private final int BALL_SIZE = 10;
-    private ArrayList<GameObject>objects;
+    private final int PLAY_WIDTH = 550;
+    private final int PLAY_HEIGHT = 640;
+    private final int BALL_RADIUS = 10;
+
+    private int laserShots = 0;
+
 
     private ArrayList<Ball>balls;
-    private ArrayList<Bonus> bonuses;
+
     private ArrayList<Brick>bricks;
 
     private int actualBrickNumber = 0;
+    private int actualBallNumber = 0;
+    private ArrayList<Bonus>bonuses;
 
-    public ArrayList<Bonus>getBonuses() {
-        return this.bonuses;
-    }
-
-
-    private ArrayList<String>curMap;
+    //private ArrayList<String>curMap;
 
     private MapManager mapManager;
 
@@ -88,29 +81,31 @@ public class View {
     private Font font;
 
     public View() {
-        //this.data = d;
-        this.objects = new ArrayList<GameObject>();
         this.balls = new ArrayList<Ball>();
         this.bricks = new ArrayList<Brick>();
         this.bonuses = new ArrayList<Bonus>();
-        this.curMap = new ArrayList<String>();
+        //this.curMap = new ArrayList<String>();
         pauseButton = new Button();
-        loseButton = new Button();
-        addBall = new Button();
-
+        resetButton = new Button();
+        //addBall = new Button();
+        mapManager = new MapManager();
         initialize();
     }
 
+    //viết View(int level) ở đây
+
+
+    //TAKES IN CURRENT LEVEL TO LOAD IT'S CORRESPONDING MAP
     public View(int level) {
         this.curLevel = level;
-        this.objects = new ArrayList<GameObject>();
+
         this.balls = new ArrayList<Ball>();
         this.bricks = new ArrayList<Brick>();
         this.bonuses = new ArrayList<Bonus>();
-        this.curMap = new ArrayList<String>();
+        //this.curMap = new ArrayList<String>();
         pauseButton = new Button();
         resetButton = new Button();
-        addBall = new Button();
+        //addBall = new Button();
 
         mapManager = new MapManager();
 
@@ -124,10 +119,10 @@ public class View {
             mapManager = (MapManager) os.readObject();
         } catch (FileNotFoundException e) {
             System.out.println("The first play");
-            
+
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            
+
         }
 
         InputStream fontStream = getClass().getResourceAsStream("fontName.ttf");
@@ -135,15 +130,14 @@ public class View {
         initialize();
     }
 
-
-
-    //Viết initialize(int level) ở đây
-
     /*public void intialize(int level) {
         //this.curMap =
     }*/
 
     //level là số thứ tự của level hiện tại
+
+
+
 
     public void initialize() {
         root = new Group();
@@ -173,56 +167,19 @@ public class View {
         this.highScoreText.setY(70);
         this.highScoreText.setText("HIGH\nSCORE\n");
 
-        Circle onlyBall = new Circle();
-        onlyBall.setCenterX(150);
-        onlyBall.setCenterY(540-10);
-        onlyBall.setRadius(10);
-        onlyBall.setFill(Color.YELLOW);
-
-        Circle circle2 = new Circle(400,600,10,Color.BLACK);
 
         Rectangle rect = new Rectangle();
         rect.setX(100);
         rect.setY(640-10);
         rect.setWidth(150);
         rect.setHeight(10);
-        
 
-        /*ArrayList<String>tmpMap = new ArrayList<String>(Arrays.asList(
-                "00010001000",
-                "00001010000",
-                "00001010000",
-                "00011111000",
-                "00011111000",
-                "00111111100",
-                "00111111100",
-                "01111111110",
-                "01111111110",
-                "01011111010",
-                "01010001010",
-                "01010001010",
-                "00001010000"
-        ));*/
 
         ArrayList<String>tmpMap = mapManager.loadMapIntoArr(curLevel);
 
-        
 
         for (int i = 0; i < 13; i++) {
             for (int j = 0; j < 11; j++) {
-                /*if(tmpMap.get(i).charAt(j) == '1'){
-                    int x = j * 50;
-                    int y = i * 30;
-                    Rectangle tmp = new Rectangle(x, y, 50, 30);
-                    tmp.setFill(Color.RED);
-                    tmp.setStroke(Color.BLACK);
-                    tmp.setStrokeWidth(3);
-                    Brick tmpBr = new Brick(tmp);
-                    this.bricks.add(tmpBr);
-                }*/
-                /*switch (tmpMap.get(i).charAt(j)) {
-                    //case '1'
-                }*/
 
                 if (tmpMap.get(i).charAt(j) == '5') {
                     int x = j * 50;
@@ -254,9 +211,11 @@ public class View {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 if(Controller.curGameState == Controller.GameState.PLAYING) {
+                    SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PAUSE;
                     writeMapData();
                 } else if (Controller.curGameState == Controller.GameState.PAUSE) {
+                    SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PLAYING;
                 }
             }
@@ -273,6 +232,7 @@ public class View {
                     writeMapData();
                 }*/
                 if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
+                    SoundManager.playLoseLifeClip();
                     Controller.curGameState = Controller.GameState.PAUSE;
                     writeMapData();
                     Alert resetAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -293,32 +253,6 @@ public class View {
             }
         });
 
-        addBall.setText("add ball");
-        addBall.setLayoutX(500);
-        addBall.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(Controller.curGameState == Controller.GameState.PLAYING) {
-                    //Controller.curGameState = Controller.GameState.MENU;
-
-                    /*Circle c2 = new Circle();
-                    c2.setCenterY(20);
-                    c2.setCenterX(20);
-                    c2.setRadius(10);
-                    c2.setFill(Color.BLUE);
-                    Ball b2 = new Ball(c2);
-                    balls.add(b2);
-                    root.getChildren().add(b2.getHitBox());*/
-                    addBall();
-                    /*if (platform.getW() <= 150 ) {
-                        if(platform.getX() + platform.getW() + 50 >= 550){
-                            platform.setX(platform.getX() - 50);
-                        }
-                        platform.setW(platform.getW() + 50);
-                    }*/
-                }
-            }
-        });
 
         Canvas otherCanvas = new Canvas(800,640);
         GraphicsContext otherGc = otherCanvas.getGraphicsContext2D();
@@ -332,21 +266,17 @@ public class View {
         root.getChildren().add(curLivesText);
         root.getChildren().add(highScoreText);
 
-        root.getChildren().add(addBall);
+        //root.getChildren().add(addBall);
 
         root.getChildren().add(pauseButton);
         root.getChildren().add(resetButton);
         //root.getChildren().add(platform.getHitBox());
 
-        /*root.getChildren().add(br1.getHitBox());
-        root.getChildren().add(br2.getHitBox());*/
 
         /*for (Brick br : bricks) {
             root.getChildren().add(br.getHitBox());
         }*/
         this.scene = new Scene(root, WIDTH, HEIGHT);
-
-
 
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -362,10 +292,20 @@ public class View {
             public void handle(KeyEvent event) {
                 platform.handleEvent(event);
                 spawnBall(event);
+                launchBall(event);
+                shootLaser(event);
+                //platform.move();
             }
         });
 
 
+
+        /*scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                spawnBall();
+            }
+        });*/
         root.requestFocus();
 
     }
@@ -384,7 +324,7 @@ public class View {
     }
 
     public void show(Stage stage, Scene scene) {
-        stage.setTitle("BALLS");
+        stage.setTitle("ARKANOID");
         stage.setScene(scene);
         stage.show();
     }
@@ -398,6 +338,10 @@ public class View {
         return balls;
     }
 
+    public int getActualBallNumber() {
+        return this.actualBallNumber;
+    }
+
     public Platform getPlatform() {
         return this.platform;
     }
@@ -406,6 +350,13 @@ public class View {
         return this.bricks;
     }
 
+    public int getActualBrickNumber() {
+        return this.actualBrickNumber;
+    }
+
+    public ArrayList<Bonus>getBonuses() {
+        return this.bonuses;
+    }
 
     public void removeFromWorld(Brick brick) {
         //brick.reduceDensity();
@@ -414,22 +365,114 @@ public class View {
             this.bricks.remove(brick);
             this.actualBrickNumber--;
             //this.root.getChildren().remove(brick.getHitBox());
+            mapManager.setTmpMapArray((int)brick.getY() / 30,(int)brick.getX() / 50 );
+            //writeMapData();
         }
     }
 
+    //THERE'S NO DIFFERENCE BETWEEN BIG AND SMALL BALL
     public void spawnBall(KeyEvent e) {
         //System.out.println("gghg");
-        if(this.balls.isEmpty() && e.getCode() == KeyCode.W) {
-            Controller.curGameState = Controller.GameState.PLAYING;
+        //if(this.balls.isEmpty() && e.getCode() == KeyCode.W) {
+        if(Controller.curGameState == Controller.GameState.PRE_PLAYING
+                && (e.getCode() == KeyCode.W  || e.getCode() == KeyCode.UP)) {
+            //System.out.println("fggdbbbbbbbbbbb");
             Circle c1 = new Circle();
             c1.setCenterX(platform.getX() + 50);
-            c1.setCenterY(640 - 10);
+            c1.setCenterY(640 - 20);
             c1.setRadius(10);
-            c1.setFill(Color.YELLOW);
+
+
+            RadialGradient rg = new RadialGradient(
+                    0,0,
+                    0.35,0.35,
+                    0.5,
+                    true,
+                    CycleMethod.NO_CYCLE,
+                    new Stop(0.0,Color.WHITE),
+                    new Stop(1.0,Color.BLUE)
+            );
+
+            c1.setFill(rg);
+
+
             Ball b = new Ball(c1);
+
+            int tmp = 1;
+            if ( platform.getX() + platform.getW() / 2 <= 225) {
+                tmp = -1;
+            }
+            b.getvSpeed().multX(tmp);
+
+            this.actualBallNumber += 1;
             this.balls.add(b);
             this.root.getChildren().add(b.getHitBox());
+            Controller.curGameState = Controller.GameState.PLAYING;
+            //System.out.println("gghg");
+            //this.root.getChildren().add(b2.getHitBox());
+        }
+    }
 
+    public void addBall() {
+        if (balls.size() == 10 || balls.isEmpty()) {
+            return;
+        }
+        RadialGradient rg = new RadialGradient(
+                0,0,
+                0.35,0.35,
+                0.5,
+                true,
+                CycleMethod.NO_CYCLE,
+                new Stop(0.0,Color.WHITE),
+                new Stop(1.0,Color.BLUE)
+        );
+
+        Circle c2 = new Circle();
+        c2.setCenterX(balls.get(0).getCentreX() + 30);
+        c2.setCenterY(balls.get(0).getCentreY() + 30);
+        c2.setRadius(10);
+        c2.setFill(rg);
+        Ball b2 = new Ball(c2);
+        //b2.setSpeed(balls.get(0).getSpeed());
+        balls.add(b2);
+        root.getChildren().add(b2.getHitBox());
+
+        Circle c3 = new Circle();
+        c3.setCenterX(balls.get(0).getCentreX() - 30);
+        c3.setCenterY(balls.get(0).getCentreY() - 30);
+        c3.setRadius(10);
+        c3.setFill(rg);
+        Ball b3 = new Ball(c3);
+        balls.add(b3);
+        root.getChildren().add(b3.getHitBox());
+        this.actualBallNumber += 2;
+    }
+
+    public void removeBall(Ball b) {
+        this.balls.remove(b);
+        this.root.getChildren().remove(b.getHitBox());
+        if (b instanceof Bullet){
+            return;
+        }
+        this.actualBallNumber--;
+        //this.playCanvas.getGraphicsContext2D().clearRect(b.getX(), b.getY(), 50, 30);
+    }
+
+    public void launchBall(KeyEvent e) {
+        if(Controller.curGameState==Controller.GameState.PLAYING
+                && (e.getCode() == KeyCode.W  || e.getCode() == KeyCode.UP)) {
+            for (Ball b : balls) {
+                if (Objects.equals(b.getSpeed(), new PVector(0, 0))) {
+                /*double aa = -3.055052212747844;
+                double aaa = -3.6132047217868;*/
+                    int tmp = 1;
+                    if ( platform.getX() + platform.getW() / 2 <= 225) {
+                        tmp = -1;
+                    }
+                    b.setSpeed(new PVector(-3.055052212747844 * tmp, -3.6132047217868));
+                    break;
+                }
+            }
         }
     }
 
@@ -454,79 +497,12 @@ public class View {
             }
         }
     }
-    public void launchBall(KeyEvent e) {
-        if(e.getCode() == KeyCode.W) {
-            for (Ball b : balls) {
-                if (Objects.equals(b.getSpeed(), new PVector(0, 0))) {
-                /*double aa = -3.055052212747844;
-                double aaa = -3.6132047217868;*/
-
-                    b.setSpeed(new PVector(-3.055052212747844, -3.6132047217868));
-                }
-            }
-        }
-    }
-
-    public void removeBall(Ball b) {
-        this.balls.remove(b);
-        this.root.getChildren().remove(b.getHitBox());
-    }
-    public void addBall() {
-
-        Circle c2 = new Circle();
-        c2.setCenterX(balls.get(0).getCentreX() + 30);
-        c2.setCenterY(balls.get(0).getCentreY() + 30);
-        c2.setRadius(10);
-        c2.setFill(Color.BLUE);
-        Ball b2 = new Ball(c2);
-        //b2.setSpeed(balls.get(0).getSpeed());
-        balls.add(b2);
-        root.getChildren().add(b2.getHitBox());
-    }
-
-    public void spawnBonus(double x, double y, int type) {
-        Rectangle tmp = new Rectangle(x,y,50,30);
-        tmp.setFill(Color.RED);
-        tmp.setStroke(Color.BLACK);
-        tmp.setStrokeWidth(3);
-        Bonus bonus = new Bonus(tmp, type);
-        this.bonuses.add(bonus);
-        //this.root.getChildren().add(bonus.getHitBox());
-    }
-
-    public void removeBonus(Bonus bonus) {
-        this.bonuses.remove(bonus);
-        this.root.getChildren().remove(bonus.getHitBox());
-    }
-
-
-
-    public void lengthenPlatform() {
-        if (platform.getW() <= 150 ) {
-            if(platform.getX() + platform.getW() + 50 >= 550){
-                platform.setX(platform.getX() - 50);
-            }
-            platform.setW(platform.getW() + 50);
-        }
-    }
-
-    public void shortenPlatform() {
-        if (platform.getW() >= 150 ) {
-            platform.setW(platform.getW() - 50);
-        }
-    }
-
-
-    public void setActualBrickNumber(int x) {
-        this.actualBrickNumber = x;
-    }
 
     public void setLaserShots(int x) {
         laserShots = x;
     }
 
     public void shootLaser(KeyEvent e) {
-
         /*if (laserShots == 3) {
             laserShots = 0;
             //Controller.laser = false;
@@ -560,18 +536,13 @@ public class View {
 
     public void render() {
         GraphicsContext gc = playCanvas.getGraphicsContext2D();
-        this.playCanvas.getGraphicsContext2D().clearRect(0,0,550, 640);
+        this.playCanvas.getGraphicsContext2D().clearRect(0,0,800, 640);
 
         this.platform.render(gc);
-
-        /*for(Ball b : balls) {
-            b.render(gc);
-        }*/
 
         for (Bonus bo:bonuses) {
             bo.render(gc);
         }
-
         for(Brick br : bricks) {
             br.render(gc);
         }
@@ -589,5 +560,38 @@ public class View {
         this.highScoreText.setText("HIGH\nSCORE\n" + highScore);
     }
 
+    public void spawnBonus(double x, double y, int type) {
+        Rectangle tmp = new Rectangle(x,y,50,30);
+        tmp.setFill(Color.RED);
+        tmp.setStroke(Color.BLACK);
+        tmp.setStrokeWidth(3);
+        Bonus bonus = new Bonus(tmp, type);
+        this.bonuses.add(bonus);
+        //this.root.getChildren().add(bonus.getHitBox());
+    }
+
+    public void removeBonus(Bonus bonus) {
+        this.bonuses.remove(bonus);
+        //this.root.getChildren().remove(bonus.getHitBox());
+    }
+
+    public void lengthenPlatform() {
+        if (platform.getW() <= 150 ) {
+            if(platform.getX() + platform.getW() + 50 >= 550){
+                platform.setX(platform.getX() - 50);
+            }
+            platform.setW(platform.getW() + 50);
+        }
+    }
+
+    public void shortenPlatform() {
+        if (platform.getW() >= 150 ) {
+            platform.setW(platform.getW() - 50);
+        }
+    }
+
+    public void setActualBrickNumber(int x) {
+        this.actualBrickNumber = x;
+    }
 
 }

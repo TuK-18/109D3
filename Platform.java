@@ -49,22 +49,6 @@ public class Platform extends GameObject{
     }
 
 
-    /*public void moveLeft() {
-        xVelocity-=PLATFORM_VEL;
-        this.setX(this.getX() + xVelocity);
-        xVelocity=0;
-        System.out.println("LEFT");
-    }
-
-    public void moveRight() {
-        xVelocity+=PLATFORM_VEL;
-        this.setX(this.getX() + xVelocity);
-        xVelocity=0;
-        System.out.println("RIGHT");
-    }*/
-
-
-
     public void handleEvent(KeyEvent e) {
         if (e.getEventType() == KeyEvent.KEY_PRESSED) {
             //System.out.println("vhvhv");
@@ -216,6 +200,8 @@ public class Platform extends GameObject{
 
             return false;
         }
+
+        SoundManager.playClip3();
 
         // fix ket vao this
         ball.setCentreY(py - br - 0.5);

@@ -27,13 +27,6 @@ import java.util.Objects;
 
 public class WinSceneController extends SceneController{
 
-    /*public WinSceneController(){
-
-    }*/
-
-
-
-
     public WinSceneController() {
         super();
         //this.lastScore = x;
@@ -42,8 +35,6 @@ public class WinSceneController extends SceneController{
 
     }
 
-
-    //initialize();
     public void initialize() {
 
         sceneText.setText("YOU WON");
@@ -67,15 +58,16 @@ public class WinSceneController extends SceneController{
         playAgainButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
+                //System.out.println("lllllllllllllll");
                 if(Controller.curGameState == Controller.GameState.WIN) {
+                    SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.RESET;
+                    //if(controller != null)controller.startMainTimer();
                 }
             }
         });
 
-
     }
-
 
 }
 

@@ -29,16 +29,13 @@ import java.util.Objects;
 
 public class LoseSceneController extends SceneController{
 
-    /*public LoseSceneController(){
-
-    }*/
     private FadeTransition fadeTransition = new FadeTransition(Duration.millis(2000),root);
-
 
     public LoseSceneController() {
         super();
         //this.lastScore = x;
         this.scene = new Scene(root,800,500);
+
         root.setOpacity(0.0);
         fadeTransition.setFromValue(0.0);
         fadeTransition.setToValue(1.0);
@@ -47,8 +44,6 @@ public class LoseSceneController extends SceneController{
 
     }
 
-
-    //initialize();
     public void initialize() {
 
         sceneText.setText("YOU LOST");
@@ -72,8 +67,11 @@ public class LoseSceneController extends SceneController{
         playAgainButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
+                //System.out.println("lllllllllllllll");
                 if(Controller.curGameState == Controller.GameState.LOSE) {
+                    SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.RESET;
+                    //if(controller != null)controller.startMainTimer();
                 }
             }
         });
@@ -82,7 +80,6 @@ public class LoseSceneController extends SceneController{
     public void fadesIn() {
         fadeTransition.play();
     }
-
 
 }
 

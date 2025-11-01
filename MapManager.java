@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 public class MapManager implements Serializable {
     public MapManager() {
+        //super();
         tmpMapArray = new ArrayList<String>();
     }
 
