@@ -521,6 +521,43 @@ public class View {
         this.actualBrickNumber = x;
     }
 
+    public void setLaserShots(int x) {
+        laserShots = x;
+    }
+
+    public void shootLaser(KeyEvent e) {
+
+        /*if (laserShots == 3) {
+            laserShots = 0;
+            //Controller.laser = false;
+        }*/
+        if (Controller.curGameState == Controller.GameState.PLAYING) {
+            if (laserShots > 0) {
+                if (e.getCode() == KeyCode.W || e.getCode() == KeyCode.UP) {
+                    Circle c1 = new Circle();
+                    c1.setCenterX(platform.getX() + 5);
+                    c1.setCenterY(platform.getY() - 10);
+                    c1.setRadius(5);
+                    c1.setFill(Color.RED);
+                    Bullet b1 = new Bullet(c1);
+
+                    Circle c2 = new Circle();
+                    c2.setCenterX(platform.getX() + platform.getW() - 5);
+                    c2.setCenterY(platform.getY() - 10);
+                    c2.setRadius(5);
+                    c2.setFill(Color.RED);
+                    Bullet b2 = new Bullet(c2);
+                    //b2.setSpeed(balls.get(0).getSpeed());
+                    balls.add(b1);
+                    balls.add(b2);
+                    root.getChildren().add(b1.getHitBox());
+                    root.getChildren().add(b2.getHitBox());
+                    laserShots -= 1;
+                }
+            }
+        }
+    }
+
     public void render() {
         GraphicsContext gc = playCanvas.getGraphicsContext2D();
         this.playCanvas.getGraphicsContext2D().clearRect(0,0,550, 640);
