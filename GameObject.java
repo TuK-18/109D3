@@ -1,11 +1,14 @@
+
 import javafx.scene.shape.*;
 import javafx.scene.paint.*;
 import javafx.scene.Node;
 import javafx.scene.shape.Shape;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-public class GameObject {
+
+public abstract class GameObject {
     protected PVector vSpeed;
     protected double x;
     protected double y;
@@ -79,7 +82,7 @@ public class GameObject {
     }
 
     public Shape getHitBox() {
-        if(this instanceof Platform){
+        if(this instanceof Platform || this instanceof Brick){
             return hitBox1;
         }
         return hitBox2;
@@ -100,7 +103,6 @@ public class GameObject {
     public void setCentreX(double centreX) {
         this.hitBox2.setCenterX(centreX);
         this.centreX = centreX;
-
     }
 
     public double getCentreY() {
@@ -133,102 +135,14 @@ public class GameObject {
         gc.drawImage(this.image,this.getX(), this.getY());
     }
 
-    public boolean detectCollision(GameObject o) {
-        if (o != this && o.getHitBox().intersects(this.getHitBox().getLayoutBounds())
-                && this instanceof Ball
-                && (o instanceof Platform || o instanceof Brick)) {
-            /*PVector currSpeed = this.vSpeed.get();
-            this.setSpeed(o.vSpeed);
-            o.setSpeed(currSpeed);*/
-            //System.out.println("ball hits pl");
-            //this.vSpeed.multY(-1);
-            //this.vSpeed.multX(-1);
-            //this.vSpeed.multX(-1);
-
-            /*if(this.getCentreY() + this.radius >= o.getY()
-                    && (this.getCentreX() + this.radius >= o.getX()
-                    || this.getCentreX() - this.radius <= o.getX()+o.getW()) ){
-                //System.out.println(o.getX());
-                this.vSpeed.multX(-1);
-                return;
-            }*/
-
-            /*if(collisionManager.hitBottoms(o, this)){
-                this.setCentreY(this.getCentreY() - this.getRadius());
-                this.vSpeed.multY(-1);
-                //return;
-            } if(collisionManager.hitSides(o,this)) {
-                this.setCentreX(this.getCentreX() - this.getRadius());
-                this.vSpeed.multY(-1);
-                this.vSpeed.multX(-1);
-                //return;dd
-            }*/
-
-            if (collisionManager.hitTop(o,this)) {
-
-                if(o instanceof Platform) {
-                    
-                    this.setCentreY(this.getCentreY() - this.getRadius());
-                    this.vSpeed.multY(-1);
-                    //System.out.println(((Platform) o).getxVelocity());
-
-
-                    //this one only modifies ball speed
-                    /*if (Math.abs(this.vSpeed.getX()) < 5) {
-                        this.vSpeed.setX(this.vSpeed.getX() + 0.1
-                                * ((double) ((Platform) o).getxVelocity() / 2));
-                    }*/
-
-                    //this one modifies the ball's direction and speed
-                    if ((this.vSpeed.getX() > 0 && ((Platform) o).getxVelocity() < 0)
-                        || (this.vSpeed.getX() < 0 && ((Platform) o).getxVelocity() > 0)) {
-                        //this.vSpeed.setX(this.vSpeed.getX() * -1)
-                        this.vSpeed.multX(-1);
-                    } else {
-                        if (Math.abs(this.vSpeed.getX()) < 5) {
-                            this.vSpeed.setX(this.vSpeed.getX() + 0.1
-                                    * ((double) ((Platform) o).getxVelocity() / 2));
-                        }
-                    }
-                    return true;
-                }
-                SoundManager.playClip1();
-                this.setCentreY(this.getCentreY() - this.getRadius());
-                //this.setCentreY(this.getCentreY());
-                this.vSpeed.multY(-1);
-                return true;
-            }
-
-            if(collisionManager.hitLeft(o,this)) {
-                this.setCentreX(this.getCentreX() - this.getRadius());
-                //this.vSpeed.multY(-1);
-                this.vSpeed.multX(-1);
-                return true;
-            }
-
-            if(collisionManager.hitRight(o,this)) {
-                this.setCentreX(this.getCentreX() + this.getRadius());
-                //this.vSpeed.multY(-1);
-                this.vSpeed.multX(-1);
-                return true;
-            }
-
-            if (collisionManager.hitBottom(o,this)) {
-                this.setCentreY(this.getCentreY() + this.getRadius());
-                this.vSpeed.multY(-1);
-                return true;
-            }
-
-
-            //this.vSpeed.multY(-1);
-
-
-        }
-        return false;
-    }
 
     public PVector getvSpeed() {
         return this.vSpeed;
     }
 
+
+
+
+
+    public abstract boolean handleObjectCollision(GameObject o);
 }

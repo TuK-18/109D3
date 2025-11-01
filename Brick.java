@@ -60,9 +60,9 @@ public class Brick extends GameObject{
         this.breakable = breakable;
     }
 
-    public void reduceDensity() {
+    public void reduceDensity(int x) {
         if (this.density > 0 && this.breakable) {
-            this.density -= 1;
+            this.density -= x;
         }
     }
 
@@ -96,5 +96,10 @@ public class Brick extends GameObject{
         }
     }
 
+    @Override
+    public boolean handleObjectCollision(GameObject otherObject) {
+        // khong lam gi ca
+        return false;
+    }
 }
 
