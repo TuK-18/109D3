@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import javafx.animation.FadeTransition;
 import javafx.scene.layout.AnchorPane;
@@ -21,45 +22,46 @@ import javafx.event.EventHandler;
 
 public class MenuSceneController extends SceneController {
     private Button resetButton;
-
+    
     public MenuSceneController() {
         super();
         this.scene = new Scene(root,800,500);
-        //scene.
+
         this.resetButton = new Button();
+        resetButton.setFont(Font.font(font.getFamily(), 50));
 
         root.getChildren().add(resetButton);
         initialize();
+
     }
 
     @Override
     public void initialize() {
 
-
+        sceneText.setText("ARKANOID");
+        sceneText.setFont(Font.font(font.getFamily(), 100));
+        sceneText.setLayoutX(255);
+        sceneText.setLayoutY(100);
+        
         playAgainButton.setText("PLAY");
-        playAgainButton.setLayoutX(270);
-        playAgainButton.setLayoutY(190);
+        playAgainButton.setLayoutX(320);
+        playAgainButton.setLayoutY(200);
 
         playAgainButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (Controller.curGameState == Controller.GameState.MENU) {
-                    Controller.curGameState = Controller.GameState.PRE_PLAYING;
-                }
+                
             }
-        
         });
 
-        resetButton.setLayoutX(265);
+        resetButton.setLayoutX(310);
+        resetButton.setLayoutY(290);
         resetButton.setText("RESET");
         resetButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (Controller.curGameState == Controller.GameState.MENU) {
-                    Controller.curGameState = Controller.GameState.RESET;
-                }
+                
             }
-    
         });
     }
 
