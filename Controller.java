@@ -1,13 +1,14 @@
 
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-
-import javax.swing.text.View;
-
 import javafx.animation.*;
 import javafx.animation.AnimationTimer;
 import javafx.stage.*;
@@ -15,26 +16,21 @@ import javafx.stage.*;
 import javafx.scene.input.KeyEvent;
 import javafx.event.EventHandler;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URL;
+import java.util.Objects;
 import java.util.Random;
 
-import javax.swing.text.View;
-
+//TODO: ADD FONT
+//TODO: ADD SOUND
 
 public class Controller {
     private Stage stage;
     private View view;
-    private CollisionManager collisionManager;
-
-    private AnimationTimer gameLoop = null;
+    private CollisionManager  collisionManager = new CollisionManager();
+    private Font font;
 
     private Scene loseScene;
-
     private Scene winScene;
 
     private LoseSceneController loseSceneController;
@@ -42,31 +38,33 @@ public class Controller {
     private MenuSceneController menuSceneController;
 
     private Group tmpRoot;
-
     private Button playButton;
+    private Text lastScoreText;
 
     private int curPoint = 0;
     private int curLevel = 1;
     private int curLives = 10;
-    //TODO : ADD HIGHSCORE
-    private int highScore ;
 
     private final int DEFAULT_POINT = 0;
     private final int DEFAULT_LEVEL = 1;
     private final int DEFAULT_LIVES = 10;
-    private final int TOTAL_LEVELS = 7;
+    private final int TOTAL_LEVELS = 9;
 
+    private int highScore;
     private boolean isSticky = false;
     public static boolean laser = false;
     private boolean magnet = false;
     private int ballPower = 1;
+    //private int laserShots = 0;
 
+    private SoundManager soundManager;
 
     public enum GameState{
         PRE_PLAYING,
         PLAYING,
         PAUSE,
         LOSE,
+        RESET,
         MENU,
         LEVEL_UP,
         WIN
@@ -75,22 +73,31 @@ public class Controller {
     public static GameState curGameState = GameState.MENU;
 
     public Controller(Stage stage_){
+        soundManager = SoundManager.getSoundManagerInstance();
+        readData();
         this.stage = stage_;
         this.stage.setWidth(800);
+        //InputStream fontStream = getClass().getResourceAsStream("/res/fontName.ttf");
+        InputStream fontStream = getClass().getResourceAsStream("fontName.ttf");
+        font = Font.loadFont(fontStream, 50);
         view = new View(curLevel);
         view.setCurScoreText(curPoint);
+        view.setHighScoreText(highScore);
+        //makeLoseScene();
     }
-
-
 
     public Stage getStage() {
         return this.stage;
     }
 
+    public View getView() {
+        return this.view;
+    }
+
     public void setCurPoint(int x) {
         curPoint = x;
     }
-    
+
     public void setCurLevel(int x) {
         curLevel = x;
     }
@@ -118,38 +125,70 @@ public class Controller {
         mainTimer.start();
     }
 
-
+    //MOVES OBJECTS AROUND
+    //HANDLE EVENTS
     public void animate() {
 
         for (int j = 0; j < view.getBalls().size(); j++) {
 
-            if (view.getBalls().get(j).getCentreY() >= 640) {
+            if(view.getBalls().get(j).getCentreY() >= 640 || view.getBalls().get(j).getCentreY() < -10) {
                 view.removeBall(view.getBalls().get(j));
                 //j--;
                 continue;
             }
 
-            if (view.getBalls().get(j) != null) {
+            if(view.getBalls().get(j) != null) {
                 view.getBalls().get(j).move();
             }
 
-            view.getBalls().get(j).detectCollision(view.getPlatform());
+
+            if ( view.getPlatform().handleObjectCollision(view.getBalls().get(j)) ) {
+                if (isSticky) {
+                    //System.out.println("stick");
+                    view.getBalls().get(j).setSpeed(new PVector(0,0));
+                }
+            }
+
+
+
+            //view.shootLaser(laser);
+
+            if(Objects.equals(view.getBalls().get(j).getSpeed(), new PVector(0, 0))){
+                if (view.getPlatform().getX() + view.getPlatform().getW() < 550
+                        && view.getPlatform().getX() > 0) {
+                    view.getBalls().get(j).setCentreX(
+
+                            view.getBalls().get(j).getCentreX()
+                                    + view.getPlatform().getxVelocity());
+
+                }
+            }
+
+                    /*if (isSticky) {
+                        view.getBalls().get(j).setCentreX(view.getPlatform().getX());
+                    }*/
 
 
             for (int i = 0; i < view.getBricks().size(); i++) {
-                if (view.getBalls().get(j).detectCollision(view.getBricks().get(i))) {
+                if (view.getBalls().get(j).handleObjectCollision((view.getBricks().get(i)))) {
+                            /*if (view.getBalls().get(j) instanceof Bullet) {
+                                view.removeBall(view.getBalls().get(j));
 
-
-                    view.getBricks().get(i).reduceDensity();
-
+                            }*/
+                    view.getBricks().get(i).reduceDensity(ballPower);
+                    //if(view.getBricks().get(i).isBreakable())curPoint+=10;
                     if (view.getBricks().get(i).getDensity() <= 0
                             && view.getBricks().get(i).isBreakable()) {
 
-                        view.spawnBonus(view.getBricks().get(i).getX()
-                                        , view.getBricks().get(i).getY(), 1);
+                        curPoint += (10) * view.getBricks().get(i).getType();
 
+                        if(RNG(0,2) == 0) {
+                            SoundManager.playExplosionClip();
+                            view.spawnBonus(view.getBricks().get(i).getX()
+                                    , view.getBricks().get(i).getY(), RNG(1, 14));
+                        }
                         view.removeFromWorld(view.getBricks().get(i));
-                                
+
                         i--;
                         //continue;
 
@@ -157,7 +196,8 @@ public class Controller {
                 }
             }
         }
-            // bonus
+
+
         if (!view.getBonuses().isEmpty()) {
             for (int i = 0; i < view.getBonuses().size(); i++) {
 
@@ -170,8 +210,11 @@ public class Controller {
                     view.getBonuses().get(i).move();
                 }
 
-                if (view.getBonuses().get(i).detectCollision(view.getPlatform())) {
 
+                // check va cham giua bonus va platform
+                if (collisionManager.detectBoxBoxCollision(view.getBonuses().get(i) , view.getPlatform())) {
+
+                    // su ly bonus
                     if (Controller.curGameState == GameState.PLAYING) {
                         handleBonus(view.getBonuses().get(i).getType());
                     }
@@ -180,109 +223,63 @@ public class Controller {
 
                 }
 
+                // ra khoi man hinh choi thi xoa
                 if(view.getBonuses().get(i).getX() >= 640) {
                     view.removeBonus(view.getBonuses().get(i));
                 }
             }
         }
 
-
+        view.setHighScoreText(highScore);
+        view.setCurScoreText(curPoint);
+        view.setCurLivesText(curLives);
         view.getPlatform().move();
 
+
+        //}
+        //};
+
+        if (curPoint >= highScore) {
+            highScore = curPoint;
+        }
+
         if(curGameState == GameState.PLAYING) {
-            if (view.getBalls().isEmpty()) {
+            //System.out.println(view.getActualBallNumber());
+            //System.out.println(view.getPlatform().getX());
+            if (view.getActualBallNumber() <= 0) {
+                //reset some bonus here
+                this.resetBonus();
                 curGameState = GameState.PRE_PLAYING;
                 curLives-=1;
-                if (curLives <= 0) {
-                    curGameState = GameState.LOSE;
-                }
-            }
-
-            if (view.getActualBrickNumber() == 0) {
-                curLevel+=1;
-
-                if(curLevel > 2) {
-                    curGameState = GameState.WIN;
-                } else {
-                    curGameState = GameState.LEVEL_UP;
-                    //view = new View(curLevel);
-                }
+                SoundManager.playLoseLifeClip();
             }
         }
 
-        
-    }
-
-        private void handleBonus(int type) {
-            switch (type) {
-                case 1:
-                    //ADD BALL
-                    this.view.addBall();
-                    break;
-                case 2:
-                    //ADD 100 POINTS
-                    this.curPoint += 100;
-                    break;
-                case 3:
-                    //MAKE PLATFORM STICKY
-                    //this.isSticky = true;
-                    //curGameState = GameState.PRE_PLAYING;
-                    break;
-                case 4:
-                    this.curPoint -= 500;
-                    break;
-                case 5:
-                    view.setActualBrickNumber(0);
-                    break;
-                case 6:
-                    view.modifyBallSpeed(1.5);
-
-                    break;
-                case 7:
-                    view.lengthenPlatform();
-                    break;
-
-                case 8:
-                    view.shortenPlatform();
-                    break;
-                case 9:
-                    curGameState = GameState.LOSE;
-                    break;
-                case 10:
-                    //+1 LIVE
-                    this.curLives += 1;
-                    break;
-                case 11:
-                    //SLOW BALLS
-                    view.modifyBallSpeed(0.5);
-                    break;
-                case 12:
-                    //LOAD THE LASER
-                    //laser = true;
-                    //view.shootLaser(laser);
-                    view.setLaserShots(3);
-                    break;
-                case 13:
-                    //BONUSES FLY TOWARDS PLATFORM
-                    magnet = true;
-                    break;
-
-                case 14:
-                    //MAKE BALL STRONGER
-                    this.ballPower = 2;
-                    break;
-            }
+        if (curLives <= 0) {
+            loseSceneController.fadesIn();
+            curGameState = GameState.LOSE;
+            return;
         }
 
-    private int RNG(int low, int high) {
-        Random random = new Random();
-        return random.nextInt(high + 1 - low) + low;
+        if (view.getActualBrickNumber() == 0) {
+            curLevel+=1;
+            //reset all bonus here;
+            this.resetBonus();
+            if(curLevel > TOTAL_LEVELS) {
+                curGameState = GameState.WIN;
+            } else {
+                curGameState = GameState.LEVEL_UP;
+                //view = new View(curLevel);
+            }
+        }
     }
+
 
     public void update() {
         playingController.updateState();
     }
 
+    //SHOW THINGS ON THE SCREEN
     public void render() {
         this.view.render();
     }
@@ -309,15 +306,18 @@ public class Controller {
         }
     }
 
-    public void showLoseScene() {
-        //this.view.showLose(stage);
-
-        stage.setScene(loseScene);
-        stage.show();
-    }
-
+    //START THE GAME
     public void run() {
         playingController = new PlayingController(this);
+
+        /*FXMLLoader loader1 = new FXMLLoader(Objects.requireNonNull(
+                getClass().getResource("LoseScene.fxml")));
+
+        try {
+            loseSceneController = new LoseSceneController(new Scene(loader1.load()));
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }*/
 
         winSceneController = new WinSceneController();
         loseSceneController = new LoseSceneController();
@@ -329,6 +329,9 @@ public class Controller {
             this.view.setCurLivesText(curLives);
             this.view.setHighScoreText(highScore);
         } else if (curGameState == GameState.MENU) {
+            //this.view.showLose(stage);
+            //this.showLoseScene();
+            //this.otherLoseScene();
             this.showMenuScene();
             stage.show();
         }
@@ -366,8 +369,96 @@ public class Controller {
         laser = false;
         magnet = false;
         this.ballPower = 1;
+        //this.laserShots = 0;
         view.setLaserShots(0);
         view.getPlatform().setW(150);
+    }
+
+    /**
+     * if platform width is 50 do not shrink
+     * if platform width is 200 do not expand
+     * if balls.size() == 10 do not add more.
+     **/
+
+    public void handleBonus(int type) {
+        switch (type) {
+            case 1:
+                //ADD BALL
+                if (!view.getBalls().isEmpty()) {
+                    this.view.addBall();
+                }
+                break;
+            case 2:
+                //ADD 100 POINTS
+                this.curPoint += 100;
+                break;
+            case 3:
+                //MAKE PLATFORM STICKY
+                this.isSticky = true;
+
+                /*if (this.isSticky) {
+                    this.isSticky = false;
+                } else {
+                    this.isSticky = true;
+                }*/
+                break;
+            case 4:
+
+                this.curPoint -= 500;
+                break;
+            case 5:
+                //FAST FORWARD TO THE NEXT LEVEL
+                /*curLevel+=1;
+                levelUp();*/
+                view.setActualBrickNumber(0);
+                break;
+            case 6:
+                //FAST BALLS
+                view.modifyBallSpeed(1.5);
+                break;
+            case 7:
+                //LONG PLATFORM
+                view.lengthenPlatform();
+                break;
+            case 8:
+                //SHORT PLATFORM
+                view.shortenPlatform();
+                break;
+            case 9:
+                //INSTA DEATH
+                loseSceneController.fadesIn();
+                curGameState = GameState.LOSE;
+                break;
+            case 10:
+                //+1 LIVE
+                this.curLives += 1;
+                writeData();
+                break;
+            case 11:
+                //SLOW BALLS
+                view.modifyBallSpeed(0.5);
+                break;
+            case 12:
+                //LOAD THE LASER
+                //laser = true;
+                //view.shootLaser(laser);
+                view.setLaserShots(3);
+                break;
+            case 13:
+                //BONUSES FLY TOWARDS PLATFORM
+                magnet = true;
+                break;
+
+            case 14:
+                //MAKE BALL STRONGER
+                this.ballPower = 2;
+                break;
+        }
+    }
+
+    private int RNG(int low, int high) {
+        Random random = new Random();
+        return random.nextInt(high + 1 - low) + low;
     }
 
     public void levelUp() {
@@ -385,6 +476,7 @@ public class Controller {
         curGameState = GameState.PRE_PLAYING;
     }
 
+
     /**
      * SET CURRENT SCORE AND HIGH SCORE FOR THE
      * LOSE SCENE TO SHOW
@@ -395,6 +487,7 @@ public class Controller {
         loseSceneController.setLastScore(curPoint);
         loseSceneController.showScene(stage);
     }
+
 
     /**
      * SET CURRENT SCORE AND HIGH SCORE FOR THE
@@ -470,6 +563,39 @@ public class Controller {
 
     }
 
-    
-    
+    /**
+     * WRITE POINT, LEVEL, AND LIVES TO A FILE
+     * WRITE HIGH SCORE TO A DIFFERENT FILE.*/
+
+    public void writeData() {
+        try {
+            File writeToThis = new File("res/playerData.txt");
+
+            FileWriter writer = new FileWriter(writeToThis);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+            bufferedWriter.write(curPoint + "\n");
+            bufferedWriter.write(curLevel + "\n");
+            bufferedWriter.write(curLives + "\n");
+
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            File writeToThis = new File("res/highScore.txt");
+
+            FileWriter writer = new FileWriter(writeToThis);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+            bufferedWriter.write(highScore + "\n");
+
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
