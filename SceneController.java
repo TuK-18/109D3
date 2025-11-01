@@ -27,9 +27,6 @@ public class SceneController{
 
     protected Scene scene;
 
-    protected Controller controller;
-
-
     protected Group root;
 
 
@@ -81,9 +78,6 @@ public class SceneController{
         return this.scene;
     }
 
-    /*public void setController(Controller controller) {
-        this.controller = controller;
-    }*/
 
     public void initialize(){
 
@@ -96,5 +90,6 @@ public class SceneController{
     public void setHighScore(int x) {
         this.highScore = x;
     }
+
 
 }
