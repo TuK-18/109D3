@@ -1,22 +1,7 @@
+package Arkanoid;
 
 import javafx.animation.Timeline;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-
-import java.io.IOException;
-import java.util.Objects;
 
 public class PlayingController {
 
@@ -24,7 +9,7 @@ public class PlayingController {
     Stage stage;
     Controller controller;
     //private AnchorPane anchorPane;
-    //private View view;
+    //private Arkanoid.View view;
     Timeline timeline = new Timeline();
 
     //private Button tButton = new Button();
@@ -43,10 +28,10 @@ public class PlayingController {
         controller.getView().gettButton().setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                if(Controller.curGameState == Controller.GameState.PLAYING) {
-                    Controller.curGameState = Controller.GameState.PAUSE;
-                } else if (Controller.curGameState == Controller.GameState.PAUSE) {
-                    Controller.curGameState = Controller.GameState.PLAYING;
+                if(Arkanoid.Controller.curGameState == Arkanoid.Controller.GameState.PLAYING) {
+                    Arkanoid.Controller.curGameState = Arkanoid.Controller.GameState.PAUSE;
+                } else if (Arkanoid.Controller.curGameState == Arkanoid.Controller.GameState.PAUSE) {
+                    Arkanoid.Controller.curGameState = Arkanoid.Controller.GameState.PLAYING;
                 }
             }
         });
@@ -122,8 +107,8 @@ public class PlayingController {
                 playButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        if(Controller.curGameState == Controller.GameState.MENU) {
-                            Controller.curGameState = Controller.GameState.PLAYING;
+                        if(Arkanoid.Controller.curGameState == Arkanoid.Controller.GameState.MENU) {
+                            Arkanoid.Controller.curGameState = Arkanoid.Controller.GameState.PLAYING;
                             controller.getView().show(stage, controller.getView().getScene());
                         }
                     }
@@ -139,14 +124,14 @@ public class PlayingController {
 
     /*
     public void testAnimate() {
-        for (Ball b : view.getBalls() ) {
+        for (Arkanoid.GameObjects.Ball b : view.getBalls() ) {
             b.move();
             axuAnimate(b);
         }
     }
 
-    private void axuAnimate(Ball ball) {
-        for (Ball b : this.view.getBalls()) {
+    private void axuAnimate(Arkanoid.GameObjects.Ball ball) {
+        for (Arkanoid.GameObjects.Ball b : this.view.getBalls()) {
             ball.detectCollision(b);
         }
     }*/
