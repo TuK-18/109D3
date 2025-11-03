@@ -1,3 +1,5 @@
+package Arkanoid;
+
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;

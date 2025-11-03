@@ -1,14 +1,13 @@
+package Arkanoid.GameObjects;
+
 import javafx.scene.shape.*;
-import javafx.scene.paint.*;
-import javafx.scene.Node;
 import javafx.scene.shape.Shape;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 import java.net.URL;
 
-public class Brick extends GameObject{
+public class Brick extends GameObject {
     protected int type;
     private int density;
     public boolean breakable;
@@ -78,7 +77,7 @@ public class Brick extends GameObject{
         return this.density;
     }
 
-    /*public void handleHit(Ball b) {
+    /*public void handleHit(Arkanoid.GameObjects.Ball b) {
         if(this.getHitBox().intersects(b.getHitBox().getLayoutBounds())){
             reduceDensity();
         }
