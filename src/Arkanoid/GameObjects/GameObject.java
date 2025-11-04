@@ -6,61 +6,62 @@ import javafx.scene.shape.Shape;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+import java.io.Serializable;
 
-public abstract class GameObject {
+
+public abstract class GameObject implements Serializable {
     protected PVector vSpeed;
     protected double x;
     protected double y;
     protected double w;
     protected double h;
-    protected CollisionManager collisionManager;
+    //protected CollisionManager collisionManager;
 
-    protected Rectangle hitBox1;
-    protected Circle hitBox2;
+    protected transient Rectangle hitBox1;
+    protected transient Circle hitBox2;
 
 
-    protected Image image;
+    protected transient Image image;
 
     protected double centreX;
     protected double centreY;
 
     public GameObject(){
-        collisionManager = new CollisionManager();
+        //collisionManager = new CollisionManager();
     }
     public GameObject(Rectangle rect) {
-        collisionManager = new CollisionManager();
+        //collisionManager = new CollisionManager();
         this.x = rect.getX();
         this.y = rect.getY();
         this.w = rect.getWidth();
         this.h = rect.getHeight();
         this.hitBox1 = rect;
         //hitBox.setX(x_);
-
         //this.color = color_;
     }
 
     public double getX() {
-        return this.hitBox1.getX();
+        //return this.hitBox1.getX();
+        return this.x;
     }
 
     public void setX(double x) {
         this.hitBox1.setX(x);
         this.x = x;
-
     }
 
     public double getY() {
-        return this.hitBox1.getY();
+        return this.y;
     }
 
     public void setY(double y) {
         this.hitBox1.setY(y);
         this.y = y;
-
     }
 
     public double getW() {
-        return this.hitBox1.getWidth();
+        //return this.hitBox1.getWidth();
+        return this.w;
     }
 
     public void setW(double w) {
@@ -69,7 +70,7 @@ public abstract class GameObject {
     }
 
     public double getH() {
-        return this.hitBox1.getHeight();
+        return this.h;
     }
 
     public void setH(double h) {
@@ -84,16 +85,20 @@ public abstract class GameObject {
         return hitBox2;
     }
 
-    /*public void setHitBox(Shape hitBox) {
-        this.hitBox = hitBox;
-    }*/
+    public void setHitBox(Rectangle hitBox) {
+        hitBox1 = hitBox;
+    }
+
+    public void setHitBox(Circle hitBox) {
+        hitBox2 = hitBox;
+    }
 
     public void setSpeed(PVector speed_) {
         this.vSpeed = speed_;
     }
 
     public double getCentreX() {
-        return this.hitBox2.getCenterX();
+        return this.centreX;
     }
 
     public void setCentreX(double centreX) {
@@ -102,7 +107,7 @@ public abstract class GameObject {
     }
 
     public double getCentreY() {
-        return this.hitBox2.getCenterY();
+        return this.centreY;
     }
 
     public void setCentreY(double centreY) {
@@ -131,6 +136,9 @@ public abstract class GameObject {
         gc.drawImage(this.image,this.getX(), this.getY());
     }
 
+    public void loadImage() {
+
+    }
 
     public PVector getvSpeed() {
         return this.vSpeed;

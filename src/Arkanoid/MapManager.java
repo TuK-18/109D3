@@ -6,13 +6,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-public class MapManager implements Serializable {
+public class MapManager{
     public MapManager() {
         //super();
-        tmpMapArray = new ArrayList<String>();
+        //tmpMapArray = new ArrayList<String>();
     }
 
-    private ArrayList<String> tmpMapArray;
+    //private ArrayList<String> tmpMapArray;
 
     // NUMBERS = DENSITY
     // 5 = UNBREAKABLE
@@ -22,8 +22,7 @@ public class MapManager implements Serializable {
         //System.out.println("gggggggggg");
         ArrayList<String>arr = new ArrayList<String>();
 
-        /*URL mapFilePath = Arkanoid.MapManager.class.getResource("level"
-                + currLevel + ".txt");*/
+
 
         File curLevelFile = new File("res/level"
                 + currLevel + ".txt");
@@ -41,16 +40,14 @@ public class MapManager implements Serializable {
             e.printStackTrace();
         }
 
-        if(!tmpMapArray.isEmpty()) {
+        /*if(!tmpMapArray.isEmpty()) {
             return tmpMapArray;
         }
-
-        tmpMapArray = arr;
+        tmpMapArray = arr;*/
         return arr;
     }
 
-    public void setTmpMapArray(int y, int x) {
-
+    /*public void setTmpMapArray(int y, int x) {
         StringBuilder tmpSb = new StringBuilder(tmpMapArray.get(y));
         tmpSb.setCharAt(x,'0');
         //tmpMapArray.set(x,"01111111110");
@@ -63,6 +60,6 @@ public class MapManager implements Serializable {
 
     public ArrayList<String> getTmpMapArray(){
         return tmpMapArray;
-    }
+    }*/
 
 }

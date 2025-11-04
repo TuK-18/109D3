@@ -88,7 +88,6 @@ public class PlayingController {
                 controller.startMainTimer();
                 break;
             case WIN:
-
                 timeline.pause();
                 //controller.stopMainTimer();
                 //controller.showLoseScene();
@@ -96,43 +95,11 @@ public class PlayingController {
                 controller.resetPlayerData();
                 break;
             case MENU:
-                //controller.showMenuScene();
+                controller.showMenuScene();
                 //System.out.println("menu");
                 break;
-            /*case MENU:
-                //this.sc
-                Group tmpRoot = new Group();
-                Button playButton = new Button();
-                playButton.setText("play");
-                playButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
-                        if(Arkanoid.Controller.curGameState == Arkanoid.Controller.GameState.MENU) {
-                            Arkanoid.Controller.curGameState = Arkanoid.Controller.GameState.PLAYING;
-                            controller.getView().show(stage, controller.getView().getScene());
-                        }
-                    }
-                });
-                tmpRoot.getChildren().add(playButton);
-                Scene loseScene = new Scene(tmpRoot,400,400);
-                stage.setScene(loseScene);
-                break;*/
+
         }
     }
 
-
-
-    /*
-    public void testAnimate() {
-        for (Arkanoid.GameObjects.Ball b : view.getBalls() ) {
-            b.move();
-            axuAnimate(b);
-        }
-    }
-
-    private void axuAnimate(Arkanoid.GameObjects.Ball ball) {
-        for (Arkanoid.GameObjects.Ball b : this.view.getBalls()) {
-            ball.detectCollision(b);
-        }
-    }*/
 }

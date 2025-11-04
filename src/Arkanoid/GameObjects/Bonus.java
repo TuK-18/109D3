@@ -18,9 +18,10 @@ public class Bonus extends Brick {
         super(rect);
         this.type = type;
 
-        URL imagePath = Bonus.class.getResource("/bonus" + type+ ".png");
+        /*URL imagePath = Bonus.class.getResource("/bonus" + type+ ".png");
         assert imagePath != null;
-        this.image = new Image(imagePath.toExternalForm());
+        this.image = new Image(imagePath.toExternalForm());*/
+        loadImage();
     }
 
     public int getType() {
@@ -176,6 +177,12 @@ public class Bonus extends Brick {
                 view.setBallPower(2);
                 break;
         }
+    }
+
+    public void loadImage() {
+        URL imagePath = Bonus.class.getResource("/bonus" + type+ ".png");
+        assert imagePath != null;
+        this.image = new Image(imagePath.toExternalForm());
     }
 
 }

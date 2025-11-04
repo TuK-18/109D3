@@ -1,9 +1,10 @@
 package Arkanoid.GameObjects;
 
+import java.io.Serializable;
 import java.lang.Math;
 
 
-public class PVector {
+public class PVector implements Serializable {
     private double x;
     private double y;
     private double magnitude;
