@@ -485,6 +485,9 @@ public class Controller {
             view = (View) os.readObject();
             view.initialize(true);
         } catch (FileNotFoundException e) {
+            curPoint = 0;
+            curLevel = 1;
+            curLives = 10;
             view = new View(curLevel);
             view.setSaveThis(GameState.PRE_PLAYING);
             System.out.println("The first playyyy");

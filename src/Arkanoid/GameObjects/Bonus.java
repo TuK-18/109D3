@@ -46,7 +46,8 @@ public class Bonus extends Brick {
         if (this.type == 4
                 || this.type == 6
                 || this.type == 9
-                || this.type == 11) {
+                || this.type == 11
+                || this.type == 5) {
             this.move();
         } else {
             PVector speed = new PVector(x - this.getX(), y - this.getY());
