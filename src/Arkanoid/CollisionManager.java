@@ -7,8 +7,6 @@ public class CollisionManager {
 
     }
 
-
-
     public boolean detectBoxBoxCollision(GameObject a, GameObject b) {
         // lay thuoc tinh a
         double ax1 = a.getX();

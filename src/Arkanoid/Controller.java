@@ -12,8 +12,6 @@ import java.io.*;
 import java.util.Objects;
 import java.util.Random;
 
-//TODO: ADD FONT
-//TODO: ADD SOUND
 
 public class Controller {
     private Stage stage;
@@ -398,8 +396,7 @@ public class Controller {
         loseSceneController.setLastScore(curPoint);
         loseSceneController.showScene(stage);
     }
-
-
+    
     /**
      * SET CURRENT SCORE AND HIGH SCORE FOR THE
      * WIN SCENE TO SHOW.
@@ -533,9 +530,6 @@ public class Controller {
         }
 
         try{
-            /*if (curGameState == GameState.PLAYING) {
-                view.setSaveThis(GameState.PAUSE);
-            }*/
             switch (Controller.curGameState) {
                 case GameState.PLAYING:
                     view.setSaveThis(GameState.PAUSE);
@@ -549,7 +543,6 @@ public class Controller {
                 default:
                     view.setSaveThis(curGameState);
                     break;
-
             }
 
             File file = new File("res/saved.data");
@@ -562,7 +555,5 @@ public class Controller {
             e.printStackTrace();
         }
 
-
     }
-
 }
