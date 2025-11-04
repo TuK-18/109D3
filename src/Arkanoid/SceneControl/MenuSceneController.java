@@ -54,7 +54,9 @@ public class MenuSceneController extends SceneController {
             public void handle(MouseEvent mouseEvent) {
                 if (Controller.curGameState == Controller.GameState.MENU) {
                     SoundManager.playClip1();
-                    Controller.curGameState = Controller.GameState.PRE_PLAYING;
+                    //Controller.curGameState = Controller.GameState.PRE_PLAYING;
+                    Controller.curGameState = Controller.getInstance().getView().getSaveThis();
+                    Controller.getInstance().setPlayScene();
                 }
             }
         });

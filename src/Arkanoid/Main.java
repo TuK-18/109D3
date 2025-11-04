@@ -17,31 +17,28 @@ public class Main extends Application {
         primaryStage.setY(0);
         primaryStage.setTitle("ARKANOID");
         example1(primaryStage);
-
-
     }
 
     private static void example1(Stage primaryStage) {
         Controller vc = Controller.getInstance(primaryStage);
-        vc.deepClean();
+        //vc.deepClean();
         vc.run();
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
-                vc.getView().writeMapData();
+                //vc.getView().writeMapData();
 
                 if (Controller.curGameState == Controller.GameState.LOSE
                         || Controller.curGameState == Controller.GameState.WIN) {
-                    vc.deepClean();
+                    /*vc.deepClean();
                     vc.resetPlayerData();
-                    vc.setCurPoint(0);
-
+                    vc.setCurPoint(0);*/
+                    vc.reset();
                 }
                 vc.writeData();
             }
         });
     }
-
 
 }
 

@@ -12,7 +12,7 @@ public class Brick extends GameObject {
     private int density;
     public boolean breakable;
 
-    private Image brokenImage;
+    private transient Image brokenImage;
 
     public Brick(Rectangle rect) {
         super(rect);
@@ -57,6 +57,7 @@ public class Brick extends GameObject {
 
         this.hitBox1 = rect;
         this.breakable = breakable;
+        this.density = 5;
     }
 
     public void reduceDensity(int x) {
@@ -93,6 +94,23 @@ public class Brick extends GameObject {
         } else {
             gc.drawImage(this.image, this.getX(), this.getY());
         }
+    }
+
+    public void loadImage() {
+        URL imagePath = Brick.class.getResource("/brick" + this.type + ".png");
+        assert imagePath != null;
+        this.image = new Image(imagePath.toExternalForm());
+
+        loadBrokenImage();
+    }
+
+    public void loadBrokenImage() {
+        if (type == 5) return;
+
+        URL brokenImagePath = Brick.class.getResource("/brokenBrick" + type + ".png");
+        assert brokenImagePath != null;
+        this.brokenImage = new Image(brokenImagePath.toExternalForm());
+
     }
 
     @Override

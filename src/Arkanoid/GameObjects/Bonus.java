@@ -18,9 +18,10 @@ public class Bonus extends Brick {
         super(rect);
         this.type = type;
 
-        URL imagePath = Bonus.class.getResource("/bonus" + type+ ".png");
+        /*URL imagePath = Bonus.class.getResource("/bonus" + type+ ".png");
         assert imagePath != null;
-        this.image = new Image(imagePath.toExternalForm());
+        this.image = new Image(imagePath.toExternalForm());*/
+        loadImage();
     }
 
     public int getType() {
@@ -45,7 +46,8 @@ public class Bonus extends Brick {
         if (this.type == 4
                 || this.type == 6
                 || this.type == 9
-                || this.type == 11) {
+                || this.type == 11
+                || this.type == 5) {
             this.move();
         } else {
             PVector speed = new PVector(x - this.getX(), y - this.getY());
@@ -176,6 +178,12 @@ public class Bonus extends Brick {
                 view.setBallPower(2);
                 break;
         }
+    }
+
+    public void loadImage() {
+        URL imagePath = Bonus.class.getResource("/bonus" + type+ ".png");
+        assert imagePath != null;
+        this.image = new Image(imagePath.toExternalForm());
     }
 
 }

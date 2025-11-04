@@ -42,8 +42,26 @@ public class Ball extends GameObject {
     }
 
     public double getRadius() {
-        //return this.radius;
-        return this.hitBox2.getRadius();
+        return this.radius;
+        //return this.hitBox2.getRadius();
+    }
+
+    public double getCentreX() {
+        return this.centreX;
+    }
+
+    public double getCentreY() {
+        return this.centreY;
+    }
+
+    public void setCentreX(double x) {
+        this.hitBox2.setCenterX(x);
+        this.centreX = x;
+    }
+
+    public void setCentreY(double y) {
+        this.hitBox2.setCenterY(y);
+        this.centreY = y;
     }
 
     public double getX() {
@@ -56,7 +74,6 @@ public class Ball extends GameObject {
 
     @Override
     public void render(GraphicsContext gc) {
-
         gc.drawImage(this.image,this.getX() - this.getRadius()
                 , this.getY() - this.getRadius());
     }
@@ -73,6 +90,10 @@ public class Ball extends GameObject {
         newSpeed.addY(this.getCentreY());
         this.setCentreX(newSpeed.getX());
         this.setCentreY(newSpeed.getY());
+
+        /*System.out.print(newSpeed.getX());
+        System.out.print(" ");
+        System.out.println(newSpeed.getY());*/
 
         if(this.getCentreX() <= this.radius) {
             SoundManager.playClip2();

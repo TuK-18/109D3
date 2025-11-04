@@ -30,19 +30,33 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
 
-public class View {
-    private Scene scene;
-    private Group root;
-    private Canvas playCanvas;
+public class View implements Serializable{
+    //private int curState;
+
+    private transient Scene scene;
+    private transient Group root;
+    private transient Canvas playCanvas;
 
     private Platform platform;
 
-    private Button pauseButton;
+    private transient Button pauseButton;
 
-    private Button resetButton;
+    private transient Button resetButton;
 
     //private Button addBall;
+    private Controller.GameState  saveThis = Controller.curGameState;
 
+    public Controller.GameState getSaveThis() {
+        return saveThis;
+    }
+
+    public void setSaveThis(Controller.GameState g) {
+        if (g == Controller.GameState.MENU) {
+            saveThis = Controller.GameState.PRE_PLAYING;
+        } else {
+            saveThis = g;
+        }
+    }
     private final int WIDTH = 800;
     private final int HEIGHT = 640;
     private final int PLAY_WIDTH = 550;
@@ -54,7 +68,6 @@ public class View {
     private boolean sticky = false;
     private int ballPower = 1;
 
-
     private ArrayList<Ball>balls;
 
     private ArrayList<Brick>bricks;
@@ -63,21 +76,19 @@ public class View {
     private int actualBallNumber = 0;
     private ArrayList<Bonus>bonuses;
 
-    //private ArrayList<String>curMap;
-
-    private MapManager mapManager;
+    private transient MapManager mapManager;
 
     private int curLevel = 1;
 
-    private Text curScoreText;
+    private transient Text curScoreText;
 
-    private Text curLevelText;
+    private transient Text curLevelText;
 
-    private Text curLivesText;
+    private transient Text curLivesText;
 
-    private Text highScoreText;
+    private transient Text highScoreText;
 
-    private Font font;
+    private transient Font font;
 
     public View() {
         this.balls = new ArrayList<Ball>();
@@ -88,7 +99,7 @@ public class View {
         resetButton = new Button();
         //addBall = new Button();
         mapManager = new MapManager();
-        initialize();
+        initialize(false);
     }
 
     public Group getRoot() {
@@ -134,45 +145,21 @@ public class View {
         this.bricks = new ArrayList<Brick>();
         this.bonuses = new ArrayList<Bonus>();
         //this.curMap = new ArrayList<String>();
-        pauseButton = new Button();
-        resetButton = new Button();
         //addBall = new Button();
 
         mapManager = new MapManager();
 
-        try {
-            File file = new File("res/map" + curLevel + ".data");
-
-            FileInputStream fileInputStream = new FileInputStream(file);
-
-            ObjectInputStream os = new ObjectInputStream(fileInputStream);
-
-            mapManager = (MapManager) os.readObject();
-        } catch (FileNotFoundException e) {
-            System.out.println("The first play");
-
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-
-        }
-
-        InputStream fontStream = getClass().getResourceAsStream("/fontName.ttf");
-        font = Font.loadFont(fontStream, 40);
-        initialize();
+        initialize(false);
     }
-
-    /*public void intialize(int level) {
-        //this.curMap =
-    }*/
 
     //level là số thứ tự của level hiện tại
 
-
-
-
-    public void initialize() {
+    public void initialize(boolean bool) {
         root = new Group();
         this.playCanvas = new Canvas(800, 640);
+
+        InputStream fontStream = getClass().getResourceAsStream("/fontName.ttf");
+        font = Font.loadFont(fontStream, 40);
 
         this.curScoreText = new Text();
         this.curScoreText.setText("SCORE \n");
@@ -199,41 +186,6 @@ public class View {
         this.highScoreText.setText("HIGH\nSCORE\n");
 
 
-        Rectangle rect = new Rectangle();
-        rect.setX(100);
-        rect.setY(640-10);
-        rect.setWidth(150);
-        rect.setHeight(10);
-
-
-        ArrayList<String>tmpMap = mapManager.loadMapIntoArr(curLevel);
-
-
-        for (int i = 0; i < 13; i++) {
-            for (int j = 0; j < 11; j++) {
-
-                if (tmpMap.get(i).charAt(j) == '5') {
-                    int x = j * 50;
-                    int y = i * 30;
-                    Rectangle tmp = new Rectangle(x, y, 50, 30);
-
-                    Brick tmpBr = new Brick(tmp, false);
-                    this.bricks.add(tmpBr);
-                } else if (tmpMap.get(i).charAt(j) != '0') {
-                    int x = j * 50;
-                    int y = i * 30;
-                    Rectangle tmp = new Rectangle(x, y, 50, 30);
-
-                    Brick tmpBr = new Brick(tmp, tmpMap.get(i).charAt(j) - '0');
-                    this.bricks.add(tmpBr);
-                    actualBrickNumber++;
-                }
-
-            }
-        }
-
-        this.platform = new Platform(rect);
-
         pauseButton = new Button();
         pauseButton.setText("PAUSE");
         pauseButton.setFont(Font.font(font.getFamily(),24));
@@ -244,14 +196,17 @@ public class View {
                 if(Controller.curGameState == Controller.GameState.PLAYING) {
                     SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PAUSE;
-                    writeMapData();
+                    saveThis = Controller.GameState.PAUSE;
+                    //writeMapData();
                 } else if (Controller.curGameState == Controller.GameState.PAUSE) {
                     SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PLAYING;
+                    saveThis = Controller.GameState.PLAYING;
                 }
             }
         });
 
+        resetButton = new Button();
         resetButton.setText("RESET");
         resetButton.setFont(Font.font(font.getFamily(),24));
         resetButton.setLayoutX(680);
@@ -265,7 +220,8 @@ public class View {
                 if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
                     SoundManager.playLoseLifeClip();
                     Controller.curGameState = Controller.GameState.PAUSE;
-                    writeMapData();
+                    saveThis = Controller.GameState.PAUSE;
+
                     Alert resetAlert = new Alert(Alert.AlertType.CONFIRMATION);
                     resetAlert.setTitle("Reset confirmation");
                     resetAlert.setHeaderText("Are you sure you want to reset?");
@@ -275,10 +231,11 @@ public class View {
                     if (result.isPresent() && result.get() == ButtonType.OK) {
                         if (Controller.curGameState == Controller.GameState.PAUSE) {
                             Controller.curGameState = Controller.GameState.RESET;
-                            writeMapData();
+                            //writeMapData();
                         }
                     } else {
                         Controller.curGameState = Controller.GameState.PLAYING;
+                        saveThis = Controller.GameState.PLAYING;
                     }
                 }
             }
@@ -297,18 +254,12 @@ public class View {
         root.getChildren().add(curLivesText);
         root.getChildren().add(highScoreText);
 
-        //root.getChildren().add(addBall);
-
         root.getChildren().add(pauseButton);
         root.getChildren().add(resetButton);
         //root.getChildren().add(platform.getHitBox());
 
 
-        /*for (Arkanoid.GameObjects.Brick br : bricks) {
-            root.getChildren().add(br.getHitBox());
-        }*/
         this.scene = new Scene(root, WIDTH, HEIGHT);
-
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -329,29 +280,97 @@ public class View {
             }
         });
 
+        if (bool) {
+            Rectangle rect = new Rectangle();
+            rect.setX(platform.getX());
+            rect.setY(640-10);
+            rect.setWidth(platform.getW());
+            rect.setHeight(10);
 
+            this.platform.setHitBox(rect);
+            platform.loadImage();
 
-        /*scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                spawnBall();
+            for (Brick br : bricks) {
+                Rectangle tmp = new Rectangle(br.getX(), br.getY()
+                        , br.getW(), br.getH());
+                br.setHitBox(tmp);
+                br.loadImage();
             }
-        });*/
-        root.requestFocus();
 
-    }
+            for (Ball b : balls) {
+                if (!(b instanceof Bullet)) {
+                    Circle c = new Circle(b.getCentreX(), b.getCentreY(), b.getRadius());
+                    RadialGradient rg = new RadialGradient(
+                            0, 0,
+                            0.35, 0.35,
+                            0.5,
+                            true,
+                            CycleMethod.NO_CYCLE,
+                            new Stop(0.0, Color.WHITE),
+                            new Stop(1.0, Color.BLUE)
+                    );
 
-    public void writeMapData() {
-        try{
-            File file = new File("res/map" + curLevel + ".data");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            ObjectOutputStream os = new ObjectOutputStream(fileOutputStream);
-            os.writeObject(mapManager);
-            os.close();
-        } catch (IOException e) {
-            System.out.println("Write object exception");
-            e.printStackTrace();
+                    c.setFill(rg);
+                    b.setHitBox(c);
+                } else {
+                    Circle c1 = new Circle();
+                    c1.setCenterX(b.getCentreX());
+                    c1.setCenterY(b.getCentreY());
+                    c1.setRadius(5);
+                    c1.setFill(Color.RED);
+                    //Bullet b1 = new Bullet(c1);
+                    b.setHitBox(c1);
+                }
+                //root.getChildren().add()
+            }
+
+            for (Ball b : balls) {
+                //System.out.println(b.getvSpeed().getX() + " " + b.getvSpeed().getY());
+                root.getChildren().add(b.getHitBox());
+            }
+
+            for (Bonus bo : bonuses) {
+                Rectangle tmp = new Rectangle(bo.getX(), bo.getY()
+                        , bo.getW(), bo.getH());
+                bo.setHitBox(tmp);
+                bo.loadImage();
+            }
+
+        } else {
+            Rectangle rect = new Rectangle();
+            rect.setX(100);
+            rect.setY(640-10);
+            rect.setWidth(150);
+            rect.setHeight(10);
+
+            ArrayList<String>tmpMap = mapManager.loadMapIntoArr(curLevel);
+
+            for (int i = 0; i < 13; i++) {
+                for (int j = 0; j < 11; j++) {
+
+                    if (tmpMap.get(i).charAt(j) == '5') {
+                        int x = j * 50;
+                        int y = i * 30;
+                        Rectangle tmp = new Rectangle(x, y, 50, 30);
+
+                        Brick tmpBr = new Brick(tmp, false);
+                        this.bricks.add(tmpBr);
+                    } else if (tmpMap.get(i).charAt(j) != '0') {
+                        int x = j * 50;
+                        int y = i * 30;
+                        Rectangle tmp = new Rectangle(x, y, 50, 30);
+
+                        Brick tmpBr = new Brick(tmp, tmpMap.get(i).charAt(j) - '0');
+                        this.bricks.add(tmpBr);
+                        actualBrickNumber++;
+                    }
+                }
+            }
+
+            this.platform = new Platform(rect);
         }
+
+        root.requestFocus();
     }
 
     public void show(Stage stage, Scene scene) {
@@ -362,7 +381,6 @@ public class View {
 
     public Scene getScene() {
         return this.scene;
-
     }
 
     public ArrayList<Ball>getBalls() {
@@ -396,8 +414,7 @@ public class View {
             this.bricks.remove(brick);
             this.actualBrickNumber--;
             //this.root.getChildren().remove(brick.getHitBox());
-            mapManager.setTmpMapArray((int)brick.getY() / 30,(int)brick.getX() / 50 );
-            //writeMapData();
+
         }
     }
 
@@ -413,7 +430,6 @@ public class View {
             c1.setCenterY(640 - 20);
             c1.setRadius(10);
 
-
             RadialGradient rg = new RadialGradient(
                     0,0,
                     0.35,0.35,
@@ -425,7 +441,6 @@ public class View {
             );
 
             c1.setFill(rg);
-
 
             Ball b = new Ball(c1);
 
@@ -443,41 +458,6 @@ public class View {
             //this.root.getChildren().add(b2.getHitBox());
         }
     }
-
-    /*public void addBall() {
-        if (balls.size() == 10 || balls.isEmpty()) {
-            return;
-        }
-        RadialGradient rg = new RadialGradient(
-                0,0,
-                0.35,0.35,
-                0.5,
-                true,
-                CycleMethod.NO_CYCLE,
-                new Stop(0.0,Color.WHITE),
-                new Stop(1.0,Color.BLUE)
-        );
-
-        Circle c2 = new Circle();
-        c2.setCenterX(balls.get(0).getCentreX() + 30);
-        c2.setCenterY(balls.get(0).getCentreY() + 30);
-        c2.setRadius(10);
-        c2.setFill(rg);
-        Arkanoid.GameObjects.Ball b2 = new Arkanoid.GameObjects.Ball(c2);
-        //b2.setSpeed(balls.get(0).getSpeed());
-        balls.add(b2);
-        root.getChildren().add(b2.getHitBox());
-
-        Circle c3 = new Circle();
-        c3.setCenterX(balls.get(0).getCentreX() - 30);
-        c3.setCenterY(balls.get(0).getCentreY() - 30);
-        c3.setRadius(10);
-        c3.setFill(rg);
-        Arkanoid.GameObjects.Ball b3 = new Arkanoid.GameObjects.Ball(c3);
-        balls.add(b3);
-        root.getChildren().add(b3.getHitBox());
-        this.actualBallNumber += 2;
-    }*/
 
     public void removeBall(Ball b) {
         this.balls.remove(b);
@@ -507,37 +487,12 @@ public class View {
         }
     }
 
-    /*public void modifyBallSpeed(double x) {
-
-        if (x == 1.5) {
-            for (Arkanoid.GameObjects.Ball b : balls) {
-                //b.setSpeed(b.getSpeed().mult(2));
-                if (Math.abs(b.getSpeed().getX()) * x < 6
-                        && Math.abs(b.getSpeed().getY()) * x < 6) {
-
-                    b.getSpeed().mult(x);
-                }
-            }
-        } else if (x == 0.5) {
-            for (Arkanoid.GameObjects.Ball b : balls) {
-                //b.setSpeed(b.getSpeed().mult(2));
-                if (Math.abs(b.getSpeed().getX()) * x > 1.5
-                        && Math.abs(b.getSpeed().getY()) * x > 1.5) {
-                    b.getSpeed().mult(x);
-                }
-            }
-        }
-    }*/
-
     public void setLaserShots(int x) {
         laserShots = x;
     }
 
     public void shootLaser(KeyEvent e) {
-        /*if (laserShots == 3) {
-            laserShots = 0;
-            //Arkanoid.Controller.laser = false;
-        }*/
+
         if (Controller.curGameState == Controller.GameState.PLAYING) {
             if (laserShots > 0) {
                 if (e.getCode() == KeyCode.W || e.getCode() == KeyCode.UP) {
@@ -605,21 +560,6 @@ public class View {
         this.bonuses.remove(bonus);
         //this.root.getChildren().remove(bonus.getHitBox());
     }
-
-    /*public void lengthenPlatform() {
-        if (platform.getW() <= 150 ) {
-            if(platform.getX() + platform.getW() + 50 >= 550){
-                platform.setX(platform.getX() - 50);
-            }
-            platform.setW(platform.getW() + 50);
-        }
-    }
-
-    public void shortenPlatform() {
-        if (platform.getW() >= 150 ) {
-            platform.setW(platform.getW() - 50);
-        }
-    }*/
 
     public void setActualBrickNumber(int x) {
         this.actualBrickNumber = x;

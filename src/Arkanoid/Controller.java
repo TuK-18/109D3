@@ -12,8 +12,6 @@ import java.io.*;
 import java.util.Objects;
 import java.util.Random;
 
-//TODO: ADD FONT
-//TODO: ADD SOUND
 
 public class Controller {
     private Stage stage;
@@ -34,11 +32,6 @@ public class Controller {
     private final int TOTAL_LEVELS = 9;
 
     private int highScore;
-    private boolean isSticky = false;
-    public static boolean laser = false;
-    private boolean magnet = false;
-    private int ballPower = 1;
-    //private int laserShots = 0;
 
     private SoundManager soundManager;
 
@@ -62,17 +55,20 @@ public class Controller {
         readData();
         this.stage = stage_;
         this.stage.setWidth(800);
-        //InputStream fontStream = getClass().getResourceAsStream("/res/fontName.ttf");
 
-        view = new View(curLevel);
         view.setCurScoreText(curPoint);
         view.setHighScoreText(highScore);
+        view.setCurLivesText(curLives);
     }
 
     public static Controller getInstance(Stage stage) {
         if (instance == null) {
             instance = new Controller(stage);
         }
+        return instance;
+    }
+
+    public static Controller getInstance() {
         return instance;
     }
 
@@ -120,7 +116,6 @@ public class Controller {
     public void animate() {
 
         for (int j = 0; j < view.getBalls().size(); j++) {
-
             if(view.getBalls().get(j).getCentreY() >= 640
                     || view.getBalls().get(j).getCentreY() < -10) {
                 view.removeBall(view.getBalls().get(j));
@@ -129,6 +124,7 @@ public class Controller {
             }
 
             if(view.getBalls().get(j) != null) {
+                //System.out.println("not null");
                 view.getBalls().get(j).move();
             }
 
@@ -144,23 +140,20 @@ public class Controller {
                 if (view.getPlatform().getX() + view.getPlatform().getW() < 550
                         && view.getPlatform().getX() > 0) {
                     view.getBalls().get(j).setCentreX(
-
                             view.getBalls().get(j).getCentreX()
                                     + view.getPlatform().getxVelocity());
-
                 }
             }
-                    /*if (isSticky) {
-                        view.getBalls().get(j).setCentreX(view.getPlatform().getX());
-                    }*/
+
             for (int i = 0; i < view.getBricks().size(); i++) {
 
                 if (view.getBalls().get(j) instanceof Bullet) {
                     if (((Bullet) view.getBalls().get(j))
                             .detectCollision(view.getBricks().get(i))) {
+
                         SoundManager.playExplosionClip();
-                        view.getBricks().get(i).reduceDensity(ballPower);
-                        //if(view.getBricks().get(i).isBreakable())curPoint+=10;
+                        view.getBricks().get(i).reduceDensity(view.getBallPower());
+
                         if (view.getBricks().get(i).getDensity() <= 0
                                 && view.getBricks().get(i).isBreakable()) {
 
@@ -193,7 +186,6 @@ public class Controller {
                             }
                             view.removeFromWorld(view.getBricks().get(i));
                             i--;
-
                         }
                     }
                 }
@@ -246,7 +238,8 @@ public class Controller {
                 }
 
                 // ra khoi man hinh choi thi xoa
-                if(view.getBonuses().get(i).getX() >= 640) {
+                if(view.getBonuses().get(i).getY()
+                        + view.getBonuses().get(i).getH() > 640) {
                     view.removeBonus(view.getBonuses().get(i));
                 }
             }
@@ -256,7 +249,7 @@ public class Controller {
         view.setCurScoreText(curPoint);
         view.setCurLivesText(curLives);
         view.getPlatform().move();
-
+        view.setSaveThis(curGameState);
 
         //}
         //};
@@ -272,6 +265,7 @@ public class Controller {
                 //reset some bonus here
                 this.resetBonus();
                 curGameState = GameState.PRE_PLAYING;
+                view.setSaveThis(GameState.PRE_PLAYING);
                 curLives-=1;
                 SoundManager.playLoseLifeClip();
             }
@@ -280,6 +274,7 @@ public class Controller {
         if (curLives <= 0) {
             loseSceneController.fadesIn();
             curGameState = GameState.LOSE;
+            view.setSaveThis(GameState.PRE_PLAYING);
             return;
         }
 
@@ -289,13 +284,14 @@ public class Controller {
             this.resetBonus();
             if(curLevel > TOTAL_LEVELS) {
                 curGameState = GameState.WIN;
+                view.setSaveThis(GameState.PRE_PLAYING);
             } else {
                 curGameState = GameState.LEVEL_UP;
+                view.setSaveThis(GameState.PRE_PLAYING);
                 //view = new Arkanoid.View(curLevel);
             }
         }
     }
-
 
     public void update() {
         playingController.updateState();
@@ -306,55 +302,24 @@ public class Controller {
         this.view.render();
     }
 
-    //clean all unneeded map files
-    public void deepClean() {
-        File tmpFile = new File("res/map0.data");
-        for (int i = 1 ; i <= TOTAL_LEVELS ; i++) {
-
-            tmpFile = new File("res/map" + i + ".data");
-            if (tmpFile.delete()) {
-                System.out.println("deleted " + i);
-            }
-
-        }
-    }
-
-    //clean the map file of the next level
-    public void cleanOne(int i) {
-        //File tmpFile = new File("res/map0.data");
-        File tmpFile = new File("res/map"+i+".data");
-        if (tmpFile.delete()) {
-            System.out.println("deleted " + i);
-        }
-    }
 
     //START THE GAME
     public void run() {
         playingController = new PlayingController(this);
 
-
         winSceneController = new WinSceneController();
         loseSceneController = new LoseSceneController();
         menuSceneController = new MenuSceneController();
 
-        if(curGameState == GameState.PLAYING || curGameState == GameState.PRE_PLAYING) {
-            this.view.show(stage, this.view.getScene());
-            this.view.setCurScoreText(curPoint);
-            this.view.setCurLivesText(curLives);
-            this.view.setHighScoreText(highScore);
-        } else if (curGameState == GameState.MENU) {
-            //this.view.showLose(stage);
-            //this.showLoseScene();
-            //this.otherLoseScene();
-            this.showMenuScene();
-            stage.show();
-        }
+        this.showMenuScene();
+        stage.show();
+
         mainTimer.start();
     }
 
     //RESET EVERYTHING AND CLEAR ALL MAP DATA
     public void reset() {
-        deepClean();
+        //deepClean();
         resetBonus();
         view = new View(1);
         view.setCurScoreText(0);
@@ -366,10 +331,11 @@ public class Controller {
         //deepClean();
         writeData();
         curGameState = GameState.PRE_PLAYING;
+        view.setSaveThis(GameState.PRE_PLAYING);
     }
 
     public void resetPlayerData() {
-        deepClean();
+        //deepClean();
         curLevel = 1;
         //curPoint = 0;
         //CAN'T RESET POINT YET BECAUSE
@@ -383,11 +349,6 @@ public class Controller {
         view.setSticky(false);
         view.setMagnet(false);
         view.setBallPower(1);
-        /*this.isSticky = false;
-        laser = false;
-        magnet = false;
-        this.ballPower = 1;*/
-        //this.laserShots = 0;
         view.setLaserShots(0);
         //view.getPlatform().setW(150);
         if(view.getPlatform().getX() + 150 >= 550){
@@ -402,81 +363,7 @@ public class Controller {
      * if balls.size() == 10 do not add more.
      **/
 
-    /*public void handleBonus(int type) {
-        switch (type) {
-            case 1:
-                //ADD BALL
-                if (!view.getBalls().isEmpty()) {
-                    this.view.addBall();
-                }
-                break;
-            case 2:
-                //ADD 100 POINTS
-                this.curPoint += 100;
-                break;
-            case 3:
-                //MAKE PLATFORM STICKY
-                this.isSticky = true;
 
-                if (this.isSticky) {
-                    this.isSticky = false;
-                } else {
-                    this.isSticky = true;
-                }
-                break;
-            case 4:
-
-                this.curPoint -= 500;
-                break;
-            case 5:
-                //FAST FORWARD TO THE NEXT LEVEL
-                //curLevel+=1;
-                //levelUp();
-                view.setActualBrickNumber(0);
-                break;
-            case 6:
-                //FAST BALLS
-                view.modifyBallSpeed(1.5);
-                break;
-            case 7:
-                //LONG PLATFORM
-                view.lengthenPlatform();
-                break;
-            case 8:
-                //SHORT PLATFORM
-                view.shortenPlatform();
-                break;
-            case 9:
-                //INSTA DEATH
-                loseSceneController.fadesIn();
-                curGameState = GameState.LOSE;
-                break;
-            case 10:
-                //+1 LIVE
-                this.curLives += 1;
-                writeData();
-                break;
-            case 11:
-                //SLOW BALLS
-                view.modifyBallSpeed(0.5);
-                break;
-            case 12:
-                //LOAD THE LASER
-                //laser = true;
-                //view.shootLaser(laser);
-                view.setLaserShots(3);
-                break;
-            case 13:
-                //BONUSES FLY TOWARDS PLATFORM
-                magnet = true;
-                break;
-
-            case 14:
-                //MAKE BALL STRONGER
-                this.ballPower = 2;
-                break;
-        }
-    }*/
 
     private int RNG(int low, int high) {
         Random random = new Random();
@@ -486,7 +373,7 @@ public class Controller {
     public void levelUp() {
         //curGameState = GameState.PRE_PLAYING;
         //deepClean();
-        cleanOne(curLevel);
+        //cleanOne(curLevel);
         view = new View(curLevel);
         view.setCurScoreText(curPoint);
         view.setCurLivesText(curLives);
@@ -496,8 +383,8 @@ public class Controller {
         resetBonus();
         writeData();
         curGameState = GameState.PRE_PLAYING;
+        view.setSaveThis(GameState.PRE_PLAYING);
     }
-
 
     /**
      * SET CURRENT SCORE AND HIGH SCORE FOR THE
@@ -509,8 +396,7 @@ public class Controller {
         loseSceneController.setLastScore(curPoint);
         loseSceneController.showScene(stage);
     }
-
-
+    
     /**
      * SET CURRENT SCORE AND HIGH SCORE FOR THE
      * WIN SCENE TO SHOW.
@@ -586,6 +472,28 @@ public class Controller {
             e.printStackTrace();
         }
 
+        try {
+            File file = new File("res/saved.data");
+
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            ObjectInputStream os = new ObjectInputStream(fileInputStream);
+
+            view = (View) os.readObject();
+            view.initialize(true);
+        } catch (FileNotFoundException e) {
+            curPoint = 0;
+            curLevel = 1;
+            curLives = 10;
+            view = new View(curLevel);
+            view.setSaveThis(GameState.PRE_PLAYING);
+            System.out.println("The first playyyy");
+        } catch (IOException | ClassNotFoundException e) {
+            view = new View(curLevel);
+            view.setSaveThis(GameState.PRE_PLAYING);
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -620,6 +528,32 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
 
+        try{
+            switch (Controller.curGameState) {
+                case GameState.PLAYING:
+                    view.setSaveThis(GameState.PAUSE);
+                    break;
+                case GameState.LOSE:
+                    view.setSaveThis(GameState.PRE_PLAYING);
+                    break;
+                case GameState.WIN:
+                    view.setSaveThis(GameState.PRE_PLAYING);
+                    break;
+                default:
+                    view.setSaveThis(curGameState);
+                    break;
+            }
+
+            File file = new File("res/saved.data");
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            ObjectOutputStream os = new ObjectOutputStream(fileOutputStream);
+            os.writeObject(view);
+            os.close();
+        } catch (IOException e) {
+            System.out.println("Write object exception");
+            e.printStackTrace();
+        }
+
+    }
 }

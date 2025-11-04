@@ -15,9 +15,9 @@ public class Platform extends GameObject {
 
     //private int lives;
 
-    private Image platform1Img;
-    private Image platform2Img;
-    private Image platform4Img;
+    private transient Image platform1Img;
+    private transient Image platform2Img;
+    private transient Image platform4Img;
 
     public Platform (Rectangle shape) {
 
@@ -29,6 +29,24 @@ public class Platform extends GameObject {
         this.setFill(color);*/
         //this.lives = 5;
 
+        URL imagePath = Platform.class.getResource("/platform3.png");
+        assert imagePath != null;
+        this.image = new Image(imagePath.toExternalForm());
+
+        URL platform1Path = Platform.class.getResource("/platform1.png");
+        assert platform1Path != null;
+        this.platform1Img = new Image(platform1Path.toExternalForm());
+
+        URL platform2Path = Platform.class.getResource("/platform2.png");
+        assert platform2Path != null;
+        this.platform2Img = new Image(platform2Path.toExternalForm());
+
+        URL platform4Path = Platform.class.getResource("/platform4.png");
+        assert platform4Path != null;
+        this.platform4Img = new Image(platform4Path.toExternalForm());
+    }
+
+    public void loadImage() {
         URL imagePath = Platform.class.getResource("/platform3.png");
         assert imagePath != null;
         this.image = new Image(imagePath.toExternalForm());
