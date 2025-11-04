@@ -234,10 +234,12 @@ public class View implements Serializable{
                 if(Controller.curGameState == Controller.GameState.PLAYING) {
                     SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PAUSE;
+                    saveThis = Controller.GameState.PAUSE;
                     //writeMapData();
                 } else if (Controller.curGameState == Controller.GameState.PAUSE) {
                     SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PLAYING;
+                    saveThis = Controller.GameState.PLAYING;
                 }
             }
         });
@@ -252,6 +254,7 @@ public class View implements Serializable{
                 if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
                     SoundManager.playLoseLifeClip();
                     Controller.curGameState = Controller.GameState.PAUSE;
+                    saveThis = Controller.GameState.PAUSE;
                     //writeMapData();
                     Alert resetAlert = new Alert(Alert.AlertType.CONFIRMATION);
                     resetAlert.setTitle("Reset confirmation");
@@ -266,6 +269,7 @@ public class View implements Serializable{
                         }
                     } else {
                         Controller.curGameState = Controller.GameState.PLAYING;
+                        saveThis = Controller.GameState.PLAYING;
                     }
                 }
             }
@@ -435,7 +439,8 @@ public class View implements Serializable{
                 if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
                     SoundManager.playLoseLifeClip();
                     Controller.curGameState = Controller.GameState.PAUSE;
-                    //writeMapData();
+                    saveThis = Controller.GameState.PAUSE;
+
                     Alert resetAlert = new Alert(Alert.AlertType.CONFIRMATION);
                     resetAlert.setTitle("Reset confirmation");
                     resetAlert.setHeaderText("Are you sure you want to reset?");
@@ -449,6 +454,7 @@ public class View implements Serializable{
                         }
                     } else {
                         Controller.curGameState = Controller.GameState.PLAYING;
+                        saveThis = Controller.GameState.PLAYING;
                     }
                 }
             }
@@ -477,10 +483,7 @@ public class View implements Serializable{
             //System.out.println(b.getvSpeed().getX() + " " + b.getvSpeed().getY());
             root.getChildren().add(b.getHitBox());
         }
-
-
         this.scene = new Scene(root, WIDTH, HEIGHT);
-
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -504,19 +507,6 @@ public class View implements Serializable{
         root.requestFocus();
 
     }
-
-    /*public void writeMapData() {
-        try{
-            File file = new File("res/map" + curLevel + ".data");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            ObjectOutputStream os = new ObjectOutputStream(fileOutputStream);
-            os.writeObject(mapManager);
-            os.close();
-        } catch (IOException e) {
-            System.out.println("Write object exception");
-            e.printStackTrace();
-        }
-    }*/
 
     public void show(Stage stage, Scene scene) {
         stage.setTitle("ARKANOID");

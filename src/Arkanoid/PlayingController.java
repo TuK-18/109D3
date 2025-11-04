@@ -5,7 +5,6 @@ import javafx.stage.Stage;
 
 public class PlayingController {
 
-
     Stage stage;
     Controller controller;
     //private AnchorPane anchorPane;
@@ -15,7 +14,6 @@ public class PlayingController {
     //private Button tButton = new Button();
 
     public PlayingController(Controller controller) {
-        //anchorPane = this.anchorPane =  FXMLLoader.load(Objects.requireNonNull(getClass().getResource("testButton.fxml")));
 
         this.stage = controller.getStage();
         this.controller = controller;
@@ -23,23 +21,6 @@ public class PlayingController {
         //init();
         timeline.playFromStart();
     }
-
-    /*public void init() {
-        controller.getView().gettButton().setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                if(Arkanoid.Controller.curGameState == Arkanoid.Controller.GameState.PLAYING) {
-                    Arkanoid.Controller.curGameState = Arkanoid.Controller.GameState.PAUSE;
-                } else if (Arkanoid.Controller.curGameState == Arkanoid.Controller.GameState.PAUSE) {
-                    Arkanoid.Controller.curGameState = Arkanoid.Controller.GameState.PLAYING;
-                }
-            }
-        });
-        //controller.getView().getScene().getRoot().getChildren()
-    }*/
-
-    //public void setController() {}
-
 
     public void updateState() {
         switch (Controller.curGameState) {
@@ -53,10 +34,7 @@ public class PlayingController {
                 timeline.pause();
                 controller.writeData();
                 break;
-            /*case LOSE:
-                timeline.pause();
 
-                break;*/
             case LOSE:
                 //System.out.println("lose");
                 SoundManager.playLoseSfx();
