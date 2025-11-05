@@ -44,7 +44,7 @@ public class View implements Serializable{
     private transient Button resetButton;
 
     //private Button addBall;
-    private Controller.GameState  saveThis = Controller.curGameState;
+    private Controller.GameState saveThis = Controller.curGameState;
 
     public Controller.GameState getSaveThis() {
         return saveThis;
@@ -130,9 +130,6 @@ public class View implements Serializable{
         return this.ballPower;
     }
 
-    public void setActualBallNumber(int x) {
-        this.actualBallNumber = x;
-    }
 
     //viết Arkanoid.View(int level) ở đây
 
@@ -146,9 +143,7 @@ public class View implements Serializable{
         this.bonuses = new ArrayList<Bonus>();
         //this.curMap = new ArrayList<String>();
         //addBall = new Button();
-
         mapManager = new MapManager();
-
         initialize(false);
     }
 
@@ -383,14 +378,6 @@ public class View implements Serializable{
         return this.scene;
     }
 
-    public ArrayList<Ball>getBalls() {
-        return balls;
-    }
-
-    public int getActualBallNumber() {
-        return this.actualBallNumber;
-    }
-
     public Platform getPlatform() {
         return this.platform;
     }
@@ -401,6 +388,10 @@ public class View implements Serializable{
 
     public int getActualBrickNumber() {
         return this.actualBrickNumber;
+    }
+
+    public void setActualBrickNumber(int x) {
+        this.actualBrickNumber = x;
     }
 
     public ArrayList<Bonus>getBonuses() {
@@ -414,8 +405,19 @@ public class View implements Serializable{
             this.bricks.remove(brick);
             this.actualBrickNumber--;
             //this.root.getChildren().remove(brick.getHitBox());
-
         }
+    }
+
+    public ArrayList<Ball>getBalls() {
+        return balls;
+    }
+
+    public int getActualBallNumber() {
+        return this.actualBallNumber;
+    }
+
+    public void setActualBallNumber(int x) {
+        this.actualBallNumber = x;
     }
 
     //THERE'S NO DIFFERENCE BETWEEN BIG AND SMALL BALL
@@ -561,8 +563,5 @@ public class View implements Serializable{
         //this.root.getChildren().remove(bonus.getHitBox());
     }
 
-    public void setActualBrickNumber(int x) {
-        this.actualBrickNumber = x;
-    }
 
 }

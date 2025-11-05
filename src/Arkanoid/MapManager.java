@@ -8,8 +8,7 @@ import java.util.ArrayList;
 
 public class MapManager{
     public MapManager() {
-        //super();
-        //tmpMapArray = new ArrayList<String>();
+
     }
 
     //private ArrayList<String> tmpMapArray;
@@ -21,8 +20,6 @@ public class MapManager{
     public ArrayList<String> loadMapIntoArr(int currLevel) {
         //System.out.println("gggggggggg");
         ArrayList<String>arr = new ArrayList<String>();
-
-
 
         File curLevelFile = new File("res/level"
                 + currLevel + ".txt");
@@ -46,20 +43,5 @@ public class MapManager{
         tmpMapArray = arr;*/
         return arr;
     }
-
-    /*public void setTmpMapArray(int y, int x) {
-        StringBuilder tmpSb = new StringBuilder(tmpMapArray.get(y));
-        tmpSb.setCharAt(x,'0');
-        //tmpMapArray.set(x,"01111111110");
-        tmpMapArray.set(y, tmpSb.toString());
-    }
-
-    public boolean emptyMap() {
-        return tmpMapArray.isEmpty();
-    }
-
-    public ArrayList<String> getTmpMapArray(){
-        return tmpMapArray;
-    }*/
 
 }
