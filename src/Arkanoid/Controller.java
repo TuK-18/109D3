@@ -396,7 +396,7 @@ public class Controller {
         loseSceneController.setLastScore(curPoint);
         loseSceneController.showScene(stage);
     }
-    
+
     /**
      * SET CURRENT SCORE AND HIGH SCORE FOR THE
      * WIN SCENE TO SHOW.
@@ -539,6 +539,8 @@ public class Controller {
                     break;
                 case GameState.WIN:
                     view.setSaveThis(GameState.PRE_PLAYING);
+                    break;
+                case GameState.MENU:
                     break;
                 default:
                     view.setSaveThis(curGameState);
