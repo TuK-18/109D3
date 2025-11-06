@@ -52,7 +52,7 @@ public class View implements Serializable{
 
     public void setSaveThis(Controller.GameState g) {
         if (g == Controller.GameState.MENU) {
-            saveThis = Controller.GameState.PRE_PLAYING;
+            saveThis = Controller.GameState.PLAYING;
         } else {
             saveThis = g;
         }
@@ -212,7 +212,7 @@ public class View implements Serializable{
                     Arkanoid.Controller.curGameState = Arkanoid.Controller.GameState.RESET;
                     writeMapData();
                 }*/
-                if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
+                //if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
                     SoundManager.playLoseLifeClip();
                     Controller.curGameState = Controller.GameState.PAUSE;
                     saveThis = Controller.GameState.PAUSE;
@@ -232,7 +232,7 @@ public class View implements Serializable{
                         Controller.curGameState = Controller.GameState.PLAYING;
                         saveThis = Controller.GameState.PLAYING;
                     }
-                }
+                //}
             }
         });
 
@@ -268,7 +268,7 @@ public class View implements Serializable{
             @Override
             public void handle(KeyEvent event) {
                 platform.handleEvent(event);
-                spawnBall(event);
+                //spawnBall(event);
                 launchBall(event);
                 shootLaser(event);
                 //platform.move();
@@ -339,6 +339,25 @@ public class View implements Serializable{
             rect.setHeight(10);
 
             ArrayList<String>tmpMap = mapManager.loadMapIntoArr(curLevel);
+
+            Circle c = new Circle(175, 640-22, 10);
+            RadialGradient rg = new RadialGradient(
+                    0, 0,
+                    0.35, 0.35,
+                    0.5,
+                    true,
+                    CycleMethod.NO_CYCLE,
+                    new Stop(0.0, Color.WHITE),
+                    new Stop(1.0, Color.BLUE)
+            );
+            c.setFill(rg);
+            actualBallNumber+=1;
+
+            Ball b = new Ball(c);
+            b.setSpeed(new PVector(0,0));
+
+            balls.add(b);
+            this.root.getChildren().add(b.getHitBox());
 
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j < 11; j++) {
@@ -421,44 +440,27 @@ public class View implements Serializable{
     }
 
     //THERE'S NO DIFFERENCE BETWEEN BIG AND SMALL BALL
-    public void spawnBall(KeyEvent e) {
-        //System.out.println("gghg");
-        //if(this.balls.isEmpty() && e.getCode() == KeyCode.W) {
-        if(Controller.curGameState == Controller.GameState.PRE_PLAYING
-                && (e.getCode() == KeyCode.W  || e.getCode() == KeyCode.UP)) {
-            //System.out.println("fggdbbbbbbbbbbb");
-            Circle c1 = new Circle();
-            c1.setCenterX(platform.getX() + 50);
-            c1.setCenterY(640 - 20);
-            c1.setRadius(10);
 
-            RadialGradient rg = new RadialGradient(
-                    0,0,
-                    0.35,0.35,
-                    0.5,
-                    true,
-                    CycleMethod.NO_CYCLE,
-                    new Stop(0.0,Color.WHITE),
-                    new Stop(1.0,Color.BLUE)
-            );
 
-            c1.setFill(rg);
+    public void setBall() {
+        Circle c = new Circle(platform.getX() + platform.getW()/2, 640-22, 10);
+        RadialGradient rg = new RadialGradient(
+                0, 0,
+                0.35, 0.35,
+                0.5,
+                true,
+                CycleMethod.NO_CYCLE,
+                new Stop(0.0, Color.WHITE),
+                new Stop(1.0, Color.BLUE)
+        );
+        c.setFill(rg);
+        actualBallNumber+=1;
 
-            Ball b = new Ball(c1);
+        Ball b = new Ball(c);
+        b.setSpeed(new PVector(0,0));
 
-            int tmp = 1;
-            if ( platform.getX() + platform.getW() / 2 <= 225) {
-                tmp = -1;
-            }
-            b.getvSpeed().multX(tmp);
-
-            this.actualBallNumber += 1;
-            this.balls.add(b);
-            this.root.getChildren().add(b.getHitBox());
-            Controller.curGameState = Controller.GameState.PLAYING;
-            //System.out.println("gghg");
-            //this.root.getChildren().add(b2.getHitBox());
-        }
+        balls.add(b);
+        this.root.getChildren().add(b.getHitBox());
     }
 
     public void removeBall(Ball b) {
@@ -468,11 +470,11 @@ public class View implements Serializable{
             return;
         }
         this.actualBallNumber--;
-        //this.playCanvas.getGraphicsContext2D().clearRect(b.getX(), b.getY(), 50, 30);
+
     }
 
     public void launchBall(KeyEvent e) {
-        if(Controller.curGameState== Controller.GameState.PLAYING
+        if(Controller.curGameState == Controller.GameState.PLAYING
                 && (e.getCode() == KeyCode.W  || e.getCode() == KeyCode.UP)) {
             for (Ball b : balls) {
                 if (Objects.equals(b.getSpeed(), new PVector(0, 0))) {
@@ -562,6 +564,4 @@ public class View implements Serializable{
         this.bonuses.remove(bonus);
         //this.root.getChildren().remove(bonus.getHitBox());
     }
-
-
 }
