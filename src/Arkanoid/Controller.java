@@ -36,7 +36,7 @@ public class Controller {
     private SoundManager soundManager;
 
     public enum GameState{
-        PRE_PLAYING,
+        //PRE_PLAYING,
         PLAYING,
         PAUSE,
         LOSE,
@@ -91,7 +91,6 @@ public class Controller {
     public void setCurLives(int x) {
         curLives = x;
     }
-
 
     private PlayingController playingController;
 
@@ -264,17 +263,21 @@ public class Controller {
             if (view.getActualBallNumber() <= 0) {
                 //reset some bonus here
                 this.resetBonus();
-                curGameState = GameState.PRE_PLAYING;
-                view.setSaveThis(GameState.PRE_PLAYING);
+                /*curGameState = GameState.PRE_PLAYING;
+                view.setSaveThis(GameState.PRE_PLAYING);*/
+                curGameState = GameState.PLAYING;
+                view.setSaveThis(GameState.PLAYING);
                 curLives-=1;
                 SoundManager.playLoseLifeClip();
+                view.setBall();
             }
         }
 
         if (curLives <= 0) {
             loseSceneController.fadesIn();
             curGameState = GameState.LOSE;
-            view.setSaveThis(GameState.PRE_PLAYING);
+            //view.setSaveThis(GameState.PRE_PLAYING);
+            view.setSaveThis(GameState.PLAYING);
             return;
         }
 
@@ -284,10 +287,12 @@ public class Controller {
             this.resetBonus();
             if(curLevel > TOTAL_LEVELS) {
                 curGameState = GameState.WIN;
-                view.setSaveThis(GameState.PRE_PLAYING);
+                //view.setSaveThis(GameState.PRE_PLAYING);
+                view.setSaveThis(GameState.PLAYING);
             } else {
                 curGameState = GameState.LEVEL_UP;
-                view.setSaveThis(GameState.PRE_PLAYING);
+                //view.setSaveThis(GameState.PRE_PLAYING);
+                view.setSaveThis(GameState.PLAYING);
                 //view = new Arkanoid.View(curLevel);
             }
         }
@@ -330,8 +335,10 @@ public class Controller {
         curLives = DEFAULT_LIVES;
         //deepClean();
         writeData();
-        curGameState = GameState.PRE_PLAYING;
-        view.setSaveThis(GameState.PRE_PLAYING);
+        /*curGameState = GameState.PRE_PLAYING;
+        view.setSaveThis(GameState.PRE_PLAYING);*/
+        curGameState = GameState.PLAYING;
+        view.setSaveThis(GameState.PLAYING);
     }
 
     public void resetPlayerData() {
@@ -382,8 +389,10 @@ public class Controller {
         //deepClean();
         resetBonus();
         writeData();
-        curGameState = GameState.PRE_PLAYING;
-        view.setSaveThis(GameState.PRE_PLAYING);
+        /*curGameState = GameState.PRE_PLAYING;
+        view.setSaveThis(GameState.PRE_PLAYING);*/
+        curGameState = GameState.PLAYING;
+        view.setSaveThis(GameState.PLAYING);
     }
 
     /**
@@ -486,11 +495,13 @@ public class Controller {
             curLevel = 1;
             curLives = 10;
             view = new View(curLevel);
-            view.setSaveThis(GameState.PRE_PLAYING);
+            //view.setSaveThis(GameState.PRE_PLAYING);
+            view.setSaveThis(GameState.PLAYING);
             System.out.println("The first playyyy");
         } catch (IOException | ClassNotFoundException e) {
             view = new View(curLevel);
-            view.setSaveThis(GameState.PRE_PLAYING);
+            //view.setSaveThis(GameState.PRE_PLAYING);
+            view.setSaveThis(GameState.PLAYING);
             e.printStackTrace();
         }
 
@@ -535,10 +546,10 @@ public class Controller {
                     view.setSaveThis(GameState.PAUSE);
                     break;
                 case GameState.LOSE:
-                    view.setSaveThis(GameState.PRE_PLAYING);
+                    view.setSaveThis(GameState.PLAYING);
                     break;
                 case GameState.WIN:
-                    view.setSaveThis(GameState.PRE_PLAYING);
+                    view.setSaveThis(GameState.PLAYING);
                     break;
                 case GameState.MENU:
                     break;

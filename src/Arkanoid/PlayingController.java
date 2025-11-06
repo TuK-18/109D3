@@ -24,18 +24,18 @@ public class PlayingController {
     public void updateState() {
         switch (Controller.curGameState) {
             case PLAYING:
-                System.out.println("playing");
+                //System.out.println("playing");
                 controller.animate();
                 //testAnimate();
                 break;
             case PAUSE:
-                System.out.println("pause");
+                //System.out.println("pause");
                 timeline.pause();
                 controller.writeData();
                 break;
 
             case LOSE:
-                System.out.println("lose");
+                //System.out.println("lose");
                 SoundManager.playLoseSfx();
                 timeline.pause();
                 //controller.stopMainTimer();
@@ -47,11 +47,11 @@ public class PlayingController {
                 //controller.writeData();
                 break;
 
-            case PRE_PLAYING:
+            /*case PRE_PLAYING:
                 System.out.println("pre");
                 controller.setPlayScene();
                 controller.animate();
-                break;
+                break;*/
             case LEVEL_UP:
 
                 controller.stopMainTimer();
@@ -73,7 +73,7 @@ public class PlayingController {
                 break;
             case MENU:
                 controller.showMenuScene();
-                System.out.println("menu");
+                //System.out.println("menu");
                 break;
 
         }
