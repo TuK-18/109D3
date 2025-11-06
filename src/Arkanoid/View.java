@@ -88,6 +88,8 @@ public class View implements Serializable{
 
     private transient Text highScoreText;
 
+    private transient Text pausedText;
+
     private transient Font font;
 
     public View() {
@@ -180,20 +182,27 @@ public class View implements Serializable{
         this.highScoreText.setY(70);
         this.highScoreText.setText("HIGH\nSCORE\n");
 
+        this.pausedText = new Text();
+        this.pausedText.setFont(Font.font(font.getFamily(), 50));
+        this.pausedText.setX(615);
+        this.pausedText.setY(500);
+
 
         pauseButton = new Button();
         pauseButton.setText("PAUSE");
         pauseButton.setFont(Font.font(font.getFamily(),24));
-        pauseButton.setLayoutX(560);
+        pauseButton.setLayoutX(570);
         pauseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 if(Controller.curGameState == Controller.GameState.PLAYING) {
+                    pausedText.setText("PAUSED");
                     SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PAUSE;
                     saveThis = Controller.GameState.PAUSE;
                     //writeMapData();
                 } else if (Controller.curGameState == Controller.GameState.PAUSE) {
+                    pausedText.setText("");
                     SoundManager.playClip2();
                     Controller.curGameState = Controller.GameState.PLAYING;
                     saveThis = Controller.GameState.PLAYING;
@@ -204,7 +213,7 @@ public class View implements Serializable{
         resetButton = new Button();
         resetButton.setText("RESET");
         resetButton.setFont(Font.font(font.getFamily(),24));
-        resetButton.setLayoutX(680);
+        resetButton.setLayoutX(690);
         resetButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -215,6 +224,7 @@ public class View implements Serializable{
                 //if (Controller.curGameState != Controller.GameState.PRE_PLAYING) {
                     SoundManager.playLoseLifeClip();
                     Controller.curGameState = Controller.GameState.PAUSE;
+                    pausedText.setText("PAUSED");
                     saveThis = Controller.GameState.PAUSE;
 
                     Alert resetAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -231,6 +241,7 @@ public class View implements Serializable{
                     } else {
                         Controller.curGameState = Controller.GameState.PLAYING;
                         saveThis = Controller.GameState.PLAYING;
+                        pausedText.setText("");
                     }
                 //}
             }
@@ -248,6 +259,8 @@ public class View implements Serializable{
         root.getChildren().add(curLevelText);
         root.getChildren().add(curLivesText);
         root.getChildren().add(highScoreText);
+
+        root.getChildren().add(pausedText);
 
         root.getChildren().add(pauseButton);
         root.getChildren().add(resetButton);
@@ -276,6 +289,11 @@ public class View implements Serializable{
         });
 
         if (bool) {
+
+            if (saveThis == Controller.GameState.PAUSE) {
+                this.pausedText.setText("PAUSED");
+            }
+
             Rectangle rect = new Rectangle();
             rect.setX(platform.getX());
             rect.setY(640-10);
