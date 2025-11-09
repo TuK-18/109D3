@@ -401,6 +401,7 @@ public class Controller {
      * */
 
     public void showLoseScene() {
+
         loseSceneController.setHighScore(highScore);
         loseSceneController.setLastScore(curPoint);
         loseSceneController.showScene(stage);
@@ -543,7 +544,12 @@ public class Controller {
         try{
             switch (Controller.curGameState) {
                 case GameState.PLAYING:
-                    view.setSaveThis(GameState.PAUSE);
+                    if (view.getBalls().size() == 1
+                            && view.getBalls().get(0).getvSpeed().equals(new PVector(0,0)) ) {
+                        view.setSaveThis(GameState.PLAYING);
+                    } else {
+                        view.setSaveThis(GameState.PAUSE);
+                    }
                     break;
                 case GameState.LOSE:
                     view.setSaveThis(GameState.PLAYING);
@@ -567,6 +573,5 @@ public class Controller {
             System.out.println("Write object exception");
             e.printStackTrace();
         }
-
     }
 }

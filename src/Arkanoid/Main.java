@@ -16,6 +16,7 @@ public class Main extends Application {
         primaryStage.setX(285);
         primaryStage.setY(0);
         primaryStage.setTitle("ARKANOID");
+        primaryStage.setResizable(false);
         example1(primaryStage);
     }
 
