@@ -1,17 +1,21 @@
 package Arkanoid.SceneControl;
 
 import Arkanoid.Controller;
+import Arkanoid.GameObjects.Bonus;
 import Arkanoid.SoundManager;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import javafx.animation.FadeTransition;
 import javafx.event.EventHandler;
+import javafx.scene.image.Image;
 
+import java.net.URL;
 
 
 public class LoseSceneController extends SceneController {
-
+    //private Image orangeImage;
     private FadeTransition fadeTransition = new FadeTransition(Duration.millis(2000),root);
 
     public LoseSceneController() {
@@ -28,6 +32,14 @@ public class LoseSceneController extends SceneController {
     }
 
     public void initialize() {
+
+        /*URL imagePath = LoseSceneController.class.getResource("");
+        assert imagePath != null;
+        this.orangeImage = new Image(imagePath.toExternalForm());
+
+        this.imageView.setImage(orangeImage);
+        this.imageView.setX(145);
+        this.imageView.setY(0);*/
 
         sceneText.setText("YOU LOST");
         sceneText.setLayoutX(300);

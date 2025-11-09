@@ -48,9 +48,10 @@ public class SceneController{
         sceneText.setFont(Font.font(font.getFamily(), 60));
         lastScoreText.setFont(Font.font(font.getFamily(), 30));
         highScoreText.setFont(Font.font(font.getFamily(), 30));
+        //playAgainButton.setOpacity(0.5);
 
-        root.getChildren().add(playAgainButton);
         root.getChildren().add(imageView);
+        root.getChildren().add(playAgainButton);
         root.getChildren().add(lastScoreText);
         root.getChildren().add(highScoreText);
         root.getChildren().add(sceneText);
